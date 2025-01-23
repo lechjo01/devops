@@ -1,43 +1,40 @@
-# Website
+# Projet Docusaurus - Laboratoires DevOps
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+Ce projet contient les énoncés des laboratoires DevOps de l'unité 4DOP1DR.
+Docusaurus est utilisé comme générateur de site statique et le résultat est déployé automatiquement
+via GitHub Pages.
 
-### Installation
+## URL de publication
 
-```
-$ yarn
-```
+Le résultat de ce projet est disponible en ligne sur : [https://lechjo01.github.io/devops/](https://lechjo01.github.io/devops/)
 
-### Local Development
 
-```
-$ yarn start
-```
+## Comment collaborer ?
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+Les collaborateurs peuvent :
+- **Créer des branches** : Pour développer de nouvelles fonctionnalités ou corriger des problèmes.
+- **Commiter directement** : Les commits peuvent être faits directement sur les branches.
+- **Proposer des pull requests** : Pour valider les modifications avant leur fusion dans la branche principale (`main`).
 
-### Build
+### Étapes pour déposer un commitgit push origin ma-nouvelle-fonctionnalite
 
-```
-$ yarn build
-```
+1. Clonez le dépôt : `git clone `
+2. Créez une branche pour vos modifications : `git checkout -b ma-nouvelle-fonctionnalite`
+3. Apportez vos modifications, puis commitez-les : `git add . ; git commit -m "Description des changements"`
+4. Poussez vos modifications dans le dépôt : `git push origin ma-nouvelle-fonctionnalite`
+5. Fusionnez ou proposez une pull request
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+### Outils nécessaires
 
-### Deployment
+- Node.js version >= 18.0 
 
-Using SSH:
+### Tester vos modifications localement
 
-```
-$ USE_SSH=true yarn deploy
-```
+Avant de pusher vos modifications, vous pouvez les tester localement en suivant ces étapes :
+1. Installez les dépendances : `npm install`
+2. Lancez le site en mode développement : `npm run start`
+3. Consulter le résultat à l'adresse : http://localhost:3000
 
-Not using SSH:
+### Ressources utiles
 
-```
-$ GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
-
-add temp
+- Documentation Docusaurus : https://docusaurus.io/docs

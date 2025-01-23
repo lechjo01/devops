@@ -18,7 +18,7 @@ function HomepageHeader() {
         <div>
           <a
             className="button button--secondary button--lg"
-            href="/docs/Premier déploiement/td01-alwaysdata"
+            href="/devops/docs/Premier déploiement/td01-variables-environnements"
           >
             Commencer les travaux dirigés
           </a>
@@ -41,7 +41,7 @@ export default function Home() {
           <h2>Introduction aux pratiques DevOps</h2>
           <p>
             Bienvenue dans cette série de travaux dirigés (TD) dédiés à l’apprentissage des pratiques et des outils fondamentaux du DevOps.
-            L’objectif de cette suite de TD est de vous fournir une compréhension pratique et approfondie des concepts clés du DevOps
+            L’objectif de cette suite de TD est de vous fournir une compréhension pratique des concepts clés du DevOps
             tout en vous guidant à travers des scénarios concrets. Vous apprendrez à concevoir, automatiser et optimiser des processus
             pour améliorer le développement et le déploiement d’applications.
           </p>
@@ -60,15 +60,15 @@ export default function Home() {
           <ol>
             <li>
               <strong>Déploiement sur Alwaysdata</strong><br />
-              Découvrez les points critiques d’un déploiement initial : configuration des environnements, gestion des dépendances, et publication d’une application sur une plateforme d’hébergement.
+              Découvrez les points critiques d’un déploiement initial : configuration des environnements, gestion des dépendances et publication d’une application sur une plateforme d’hébergement.
             </li>
             <li>
               <strong>Introduction à Docker</strong><br />
-              Apprenez à conteneuriser une application. Ces TD vous permettront de comprendre les concepts fondamentaux des conteneurs, comme la création de Dockerfiles et la gestion des images Docker.
+              Apprenez à conteneuriser une application avec Docker afin de simplifier la configuration des environnements et la publication d'une application.
             </li>
             <li>
               <strong>Analyse de la qualité de code avec SonarQube</strong><br />
-              Découvrez comment évaluer et améliorer la qualité de votre code grâce à SonarQube. Vous apprendrez à intégrer cet outil dans votre workflow pour détecter des problèmes de qualité et de sécurité.
+              Découvrez comment évaluer et améliorer la qualité de votre code grâce à SonarQube afin de détecter automatiquement les problèmes de qualité de code et d’autoriser uniquement les publications correctes.
             </li>
             <li>
               <strong>GitLab CI/CD : Créer un pipeline complet</strong><br />
