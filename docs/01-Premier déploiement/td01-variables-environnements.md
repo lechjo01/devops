@@ -273,7 +273,7 @@ lancez la commande ajoutant
 une Java system property
 
 ```
-java -jar demo-1.0.0.jar -Dserver.port=8082
+java -jar -Dserver.port=8082 demo-1.0.0.jar 
 ```
 
 A quelle url répond votre application ?
@@ -282,7 +282,7 @@ Finalement lancez la commande qui ajoute en plus une propriété de
 configuration Spring Boot
 
 ```
-java -jar demo-1.0.0.jar -Dserver.port=8082 --server.port=8083
+java -jar -Dserver.port=8082 demo-1.0.0.jar --server.port=8083
 ```
 
 Déduisez l'ordre de priorité entre les différentes variables
