@@ -1,4 +1,4 @@
-# TD 11 - Prometheus
+# TD 11 - Surveiller avec Prometheus
 
 ![work in progress](/img/work-in-progress.jpeg)
 

@@ -1,6 +1,8 @@
-# TD 03 - Gestion d'une DB
+# TD 03 - Configurer une DB
 
-Ce TD vous guidera à travers les étapes nécessaires pour développer, configurer, et déployer une application Spring Boot connectée à une base de données sur la plateforme AlwaysData.
+Ce TD vous guidera à travers les étapes nécessaires pour développer, 
+configurer, et déployer une application Spring Boot connectée à une 
+base de données sur la plateforme Alwaysdata.
 
 ## Objectifs du TD
 
@@ -24,12 +26,12 @@ Ce TD vous guidera à travers les étapes nécessaires pour développer, configu
 Commencez par récupérer l'application Spring-Boot à déployer.
 
 ```
-git clone https://git.esi-bru.be/jlechien/spring-demo.git
+git clone https://git.esi-bru.be/4dop1dr-ressources/demo.git
 ```
 
 Cette application est composée du controlleur suivant : 
 
-```java 
+```java showLineNumbers
 @RestController
 public class ServiceRestController {
     
@@ -43,11 +45,12 @@ public class ServiceRestController {
     public Map<String, String> getEnvironmentDetails() {
         Map<String, String> envDetails = new HashMap<>();
         
-        // Ajouter les propriétés dans la réponse
+        // Récupération des propriétés de configuration Spring Boot
+        // depuis application.properties
         envDetails.put("Application Name", environment.getProperty("spring.application.name"));
         envDetails.put("Port Number", environment.getProperty("server.port"));
 
-        // Ajouter les variables système
+        // Récupération des propriétés système
         envDetails.put("Java Version", System.getProperty("java.version"));
         envDetails.put("Operating System", System.getProperty("os.name"));
         envDetails.put("User Name", System.getProperty("user.name"));
@@ -78,43 +81,64 @@ spring.datasource.password=
 spring.jpa.defer-datasource-initialization=true
 ```
 
-Empaquetez et démarrez l'application.
-Connectez vous à la console de la base de données via localhost:8080/h2-console
+:::note Exercice
 
-Entrez `sa` comme nom d'utilisateur et n'entrez aucun mot de passe. Vérifiez que la table Person a été créée.
+1. Empaquetez et démarrez l'application.
+1. Connectez vous à la console de la base de données 
+via [localhost:8080/h2-console](localhost:8080/h2-console)
+1. Entrez `sa` comme nom d'utilisateur
+1. N'entrez aucun mot de passe.
+1. Vérifiez que la table Person a été créée.
 
-:::warning
-
-Pensez-vous que cette configuration est correcte pour déployer l'application ?
+Pensez-vous que cette configuration sans mot de passe 
+est correcte pour déployer l'application ?
 
 :::
 
 ## Préparer l’infrastructure
 
-Lorsque vous déploierez votre application sur Alwaysdata, le serveur de base de données H2 embarqué ne sera pas créé. Il s'agit d'un dispositif qui empêche votre déploiement de créer un processus dédié à la gestion de données en mémoire.
+Lorsque vous déployez votre application sur Alwaysdata, 
+le serveur de base de données H2 embarqué ne sera pas initialisé. 
+Ce comportement de Alwaysdata empêche la création d’un processus 
+dédié à la gestion des données en mémoire.
+C’est en réalité une bonne chose : avec une base de données embarquée, 
+les données sont stockées dans la mémoire vive de l’application et **disparaissent** 
+à chaque arrêt ou redémarrage. Ainsi, sur Alwaysdata, toute interruption 
+de l’application entraînerait la perte des données, car H2 ne permet 
+pas leur persistance.
+Une meilleure pratique consiste à créer une base de données directement 
+sur Alwaysdata via leur interface, puis à configurer votre application 
+pour utiliser cette base externe à la place de H2.
 
-C'est une bonne nouvelle. Avec la bse de données embarquée les données sont stockées dans la mémoire vive de l'application et disparaissent dès que l'application est arrêtée ou redémarrée.
-Lors du déploiement sur AlwaysData, chaque redémarrage ou arrêt de l'application entraîne la perte de **toutes** les données H2, car elles ne sont pas persistées. 
+### Créer la base de données 
 
-la bonne pratique est de créer une base de données sur AlwaysData (via leur interface) et de configurer votre application pour utiliser cette base de données à la place de H2.
+Dans le menu de votre compte Alwaysdata, allez dans le menu `Databases > MySQL`.  
+Appuyez sur `Add a database` et intitulez cette base de données `g12345_demo_devops`. 
+N'oubliez pas de sélectionner les permissions adéquate pour votre utilisateur,
+c'est à dire `all rights`.
 
-Dans le menu de votre compte Alwaysdata, allez dans le menu `Databases > MySQL`.  Appuyez sur `Add a database` et intitulez cette base de données `g12345_demo_devops`. N'oubliez pas de sélectionner les permissions adéquate pour votre utilisateur (`all rights`).
+Sur la page listant vos bases de données MySQL, vous trouverez l'information 
+`MySQL host: mysql-g12345.alwaysdata.net`, qui vous permettra de configurer 
+les paramètres de connexion pour votre application déployée.
+Cette même page fournit un lien vers la console phpMyAdmin 
+: [https://phpmyadmin.alwaysdata.com/](https://phpmyadmin.alwaysdata.com/).
 
-Sur la page de la liste des bases de données MySQL est indiqué `MySQL host: mysql-g12345.alwaysdata.net` qui vous renseigne sur les paramètres à donner à votre application une fois déployée.
+:::note Exercice
 
-```
-spring.datasource.url=jdbc:mysql://mysql-g12345.alwaysdata.net:3306/g12345_demo_devops
-```
+Connectez-vous à la console phpMyAdmin  en utilisant votre nom d’utilisateur (`g12345`) 
+et le mot de passe de votre compte AlwaysData, puis vérifiez 
+que la base de données `g12345_demo_devops` est **vide**.
 
-Toujours sur la page de la liste des base de données MySQL est indiqué un lien vers la console phpMyAdmin : https://phpmyadmin.alwaysdata.com/
-
-Entrez votre nom d'utilisateur (g12345) et le mot de passe de votre compte Alwaysdata pour vérifier que la base de données `g12345_demo_devops` est vide.
+:::
 
 ## Les variables d'environnements
 
-Modifiez le fichier `application.properties` et supprimez les informations concernant H2.
+### Sur la machine locale
 
-```java title="application.properties"
+Sur votre machine, modifiez le fichier `application.properties` 
+et supprimez les informations concernant H2.
+
+```java title="application.properties" showLineNumbers
 spring.application.name=demo pour devops
 server.port=8080
 
@@ -122,18 +146,23 @@ server.port=8080
 spring.jpa.defer-datasource-initialization=true
 ```
 
-Empaquetez votre application et démarrez votre application là en ajoutant les variables systèmes comme ci-dessous : 
+Empaquetez votre application et démarrez la en ajoutant 
+les variables d'environnements systèmes comme ci-dessous : 
 
 ```
 export SPRING_DATASOURCE_URL=jdbc:h2:mem:mydatabase
 export SPRING_DATASOURCE_USERNAME=sa
-export SPRING_DATASOURCE_PASSWORD=
-java -jar demo-1.0.0.jar 
+export SPRING_DATASOURCE_PASSWORD= 
 ```
 
-Consommez le service rest afin de vérifiez que l'application fonctionne toujours.
+Consommez le service REST afin de **vérifiez** que 
+l'application fonctionne suite à ce changement.
 
-Connectez-vous à votre compte Alwaysdata et consultez la page des sites. Modifiez les propriétés de votre site et ajoutez dans la section `Environment` les variables
+### Sur la machine distante 
+
+Connectez-vous à votre compte Alwaysdata et consultez la page des sites. 
+Modifiez les propriétés de votre site (&#9881;&#65039;) et 
+ajoutez dans la section `Environment` les variables d'environnements systèmes :
 
 ```
 export SPRING_DATASOURCE_URL=jdbc:mysql://mysql-jlc.alwaysdata.net:3306/jlc_demo_devops
@@ -141,29 +170,65 @@ export SPRING_DATASOURCE_USERNAME=g12345
 export SPRING_DATASOURCE_PASSWORD=le mot de passe de votre compte Alwaysdata
 ```
 
+Finalement : 
+
+1. Enregistrez vos modifications.
+1. Copiez le fichier JAR de votre application.
+via la commande `scp` dans le dossier `www`.
+1. Consommez le service via l'url `http://g12345.alwaysdata.net/`.
+1. Connectez-vous à la console phpMyAdmin : https://phpmyadmin.alwaysdata.com/.
+1. Vérifiez que la table `Person` est créée.
+
 :::danger Mot de passe visible
 
-Votre mot de passe est écrit explicitement et est visible dès que la page des paramètres de votre site est ouverte. Dans les TDs futurs nous utiliserons une notion de variable secrète qui résous ce problème.
+Votre mot de passe est affiché en clair et reste visible dès 
+que la page des paramètres de votre site est ouverte. 
+Dans les prochains TD, nous introduirons le concept de variables 
+secrètes pour remédier à ce problème.
 
 :::
 
-Enregistrer vos modifications.
+## La logique DevOps : l'automatisation
 
-Copier le fichier JAR de votre application via la commande `scp` et testez le service via l'url `http://g12345.alwaysdata.net/`
+:::note Exercice
 
-Connectez-vous à la console phpMyAdmin : https://phpmyadmin.alwaysdata.com/ et vérifiez que la table `Person` est créée.
+Afin de prendre conscience de l'avantage d'automatiser des processus répétitif 
+et de se placer dans une logique DevOps professionnelle écrivez un script shell qui
 
-## La logique DevOps : automatisation
+1. Compile l’application Spring Boot : `mvn compile`.
+1. Lance les tests unitaires de l'application : `mvn test`.
+1. Empaquete l’application  : `mvn package`.
+1. Déploie l'application sur Alwaysdata à l'aide de la commande `scp`.
 
-Une bonne pratique DevOps est d'automatiser les opérations répétitives. A titre d'exemple voici un script shell automatisant l'étape d'empaquetage de notre application. Remarquez l'utilisation de la condition `if [ $? -ne 0 ]` permettant de détecter si la commande précédente s'est terminée en erreur ou en succès. 
+Le script doit vérifier après chaque action le succès ou l'échec de cette action et arrêter le script en indiquant à l'utilisateur la cause d'arrêt en cas d'erreur.
+
+pensez à modifier la variable `spring.application.name` à chaque déploiement 
+pour confirmer que la mise à jour a bien été prise en compte. 
+Par exemple, vous pouvez utiliser une valeur unique basée sur le numéro de l'essai :
+
+```
+spring.application.name=demo pour devops - déploiement numéro 42
+```
+
+Cela permet de vérifier facilement que l'application déployée correspond 
+à la version la plus récente.
+
+Vous pouvez également dans le menu du site de Alwaysdata 
+appuyer sur le bouton affichant les `logs` de votre application
+pour consulter les messages d'erreurs.
+
+A titre d'exemple voici un script shell automatisant l'étape d'empaquetage 
+de notre application. 
+Remarquez l'utilisation de la condition `if [ $? -ne 0 ]` permettant de détecter 
+si la commande précédente s'est terminée en erreur ou en succès. 
 
 ``` bash showLineNumbers
 #!/bin/bash
 
 # Chemin vers votre projet à compléter
-PROJECT_DIR="/home/..."
+WORK_DIR="/home/..."
 
-cd "$PROJECT_DIR"
+cd "$WORK_DIR"
 
 echo "  Création du fichier JAR..."
 ./mvnw package
@@ -176,22 +241,5 @@ fi
 echo "  Fichier JAR créé : $JAR_FILE."
 
 ```
-
-Afin de prendre conscience de l'avantage d'automatiser des processus répétitif et de se placer dans une logique DevOps professionnelle réalisez le script décrit dans l'exercice suivant.
-
-:::note Exercice
-
-Créez un script shell qui : 
-
-1. Compile l’application spring-boot : `mvn compile`
-1. Lance les tests unitaires de l'application : `mvn test`
-1. Empaquete l’application  : `mvn package`
-1. Déploie l'application sur Alwaysdata : `scp ...`
-
-Le script doit vérifier après chaque action le succès ou l'échec de cette action et arrêter le script en indiquant à l'utilisateur la cause d'arrêt en cas d'erreur.
-
-Pensez à modifier la variable `spring.application.name` à chaque déploiement afin de vérifier que la mise à jour est un succès. Par exemple avec une valeur dépendant du numéro de l'essai que vous réalisez `spring.application.name=demo pour devops déploiement numéro 42`.
-
-Vous pouvez également dans le menu du site de Alwaysdata appuyer sur le bouton affichant les `logs` de votre application.
 
 :::

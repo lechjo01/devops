@@ -41,22 +41,22 @@ export default function Home() {
           <h2>Introduction aux pratiques DevOps</h2>
           <p>
             Bienvenue dans cette série de travaux dirigés (TD) dédiés à l’apprentissage des pratiques et des outils fondamentaux du DevOps.
-            L’objectif de cette suite de TD est de vous fournir une compréhension pratique des concepts clés du DevOps
+            L’objectif de cette suite de travaux dirigés est de vous fournir une compréhension pratique des concepts clés du DevOps
             tout en vous guidant à travers des scénarios concrets. Vous apprendrez à concevoir, automatiser et optimiser des processus
             pour améliorer le développement et le déploiement d’applications.
           </p>
 
-          <h3>Objectifs pédagogiques</h3>
+          <h3>Objectifs</h3>
           <p>
             Au fil des séances, vous serez amenés à :
           </p>
           <ul>
             <li>Comprendre les défis et les bonnes pratiques liés au déploiement d’applications.</li>
-            <li>Maîtriser les outils essentiels du DevOps, tels que Docker, GitLab CI/CD, Terraform, et bien d’autres.</li>
-            <li>Explorer les interactions entre ces outils dans des scénarios réalistes pour construire et gérer un pipeline complet de livraison continue.</li>
+            <li>Maîtriser les outils essentiels du DevOps tels que Docker, GitLab CI/CD et Terraform.</li>
+            <li>Explorer les interactions entre ces outils dans des scénarios réalistes.</li>
           </ul>
 
-          <h3>Programme des TD</h3>
+          <h3>Programme des travaux dirigés</h3>
           <ol>
             <li>
               <strong>Déploiement sur Alwaysdata</strong><br />
@@ -68,11 +68,11 @@ export default function Home() {
             </li>
             <li>
               <strong>Analyse de la qualité de code avec SonarQube</strong><br />
-              Découvrez comment évaluer et améliorer la qualité de votre code grâce à SonarQube afin de détecter automatiquement les problèmes de qualité de code et d’autoriser uniquement les publications correctes.
+              Découvrez comment évaluer votre code grâce à SonarQube afin de détecter automatiquement les problèmes de qualité de code et d’autoriser uniquement les publications correctes.
             </li>
             <li>
-              <strong>GitLab CI/CD : Créer un pipeline complet</strong><br />
-              Apprenez à orchestrer les différentes étapes d’un pipeline DevOps en utilisant GitLab CI/CD. Vous configurerez des interactions entre les outils étudiés (Docker, SonarQube, etc.) pour automatiser le cycle de livraison.
+              <strong>Créer un pipeline avec GitLab CI/CD </strong><br />
+              Apprenez à automatiser le cycle de livraison en utilisant GitLab CI/CD qui mettra en interaction les outils étudiés (Docker, SonarQube, etc.).
             </li>
             <li>
               <strong>Déploiement sur AWS</strong><br />
@@ -80,31 +80,21 @@ export default function Home() {
             </li>
             <li>
               <strong>Infrastructure as Code (IaC) avec Terraform</strong><br />
-              Découvrez comment gérer et provisionner vos infrastructures à l’aide de Terraform. Ces TD mettront l’accent sur les bonnes pratiques d’IaC.
+              Découvrez comment gérer et provisionner vos infrastructures à l’aide de Terraform.
             </li>
             <li>
-              <strong>Monitoring et Observabilité</strong><br />
+              <strong>Monitoring</strong><br />
               Apprenez à surveiller vos systèmes pour garantir leur performance et leur disponibilité.
             </li>
             <li>
               <strong>Scénarios pratiques : Interactions entre outils DevOps</strong><br />
-              Terminez cette série avec des scénarios réalistes qui vous mettront dans des situations nécessitant l’utilisation coordonnée de plusieurs outils
-              (par exemple, conteneurisation avec Docker, analyse de qualité avec SonarQube, déploiement automatisé avec GitLab CI/CD, et monitoring).
+              Terminez cette série de travaux dirigés avec des scénarios réalistes qui vous mettront dans des situations nécessitant l’utilisation coordonnée de plusieurs outils.
               Ces exercices vous prépareront à gérer des environnements DevOps dans le monde réel.
             </li>
           </ol>
 
-          <h3>Une approche progressive et pratique</h3>
           <p>
-            Chaque TD est conçu pour être autonome tout en construisant progressivement votre maîtrise des outils et des concepts DevOps. À la fin de cette série, vous serez capable de :
-          </p>
-          <ul>
-            <li>Construire un pipeline DevOps.</li>
-            <li>Gérer les déploiements cloud et on-premises.</li>
-            <li>Automatiser la gestion des infrastructures et des processus de développement.</li>
-          </ul>
-          <p>
-            Nous vous invitons à explorer, expérimenter et poser des questions pour tirer le meilleur parti de cette formation.
+            Nous vous invitons à explorer, expérimenter et poser des questions pour tirer le meilleur parti de ces travaux dirigés.
           </p>
         </div>
       </main>
