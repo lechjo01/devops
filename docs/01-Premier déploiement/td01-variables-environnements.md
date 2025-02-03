@@ -114,7 +114,7 @@ via la commande :
   </TabItem>
   <TabItem value="win" label="Windows">
   ```
-  .mvnw.cmd --version
+  ./mvnw.cmd --version
   ```
   </TabItem>
 </Tabs>
