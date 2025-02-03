@@ -62,6 +62,7 @@ public class ServiceRestController {
 
         return envDetails;
     }
+}
 ```
 
 Ce contrôleur expose un service REST qui retourne des détails sur 
@@ -80,7 +81,7 @@ javadoc de la méthode `System.getProperty()`. [Consultez cette liste via ce lie
 
 :::
 
-Ensuite le contrôleur via La classe 
+Ensuite le contrôleur via la classe 
 `org.springframework.core.env.Environment` récupère les valeurs 
 des **propriétés de configuration Spring Boot**, c'est à dire les
  variables du fichier `application.properties`.
@@ -138,7 +139,7 @@ OS name: "linux", version: "6.8.0-51-generic", arch: "amd64", family: "unix"
 
 Dans le cas contraire, résolvez l'erreur suite à l'exécution du 
 script avant de continuer. Si le script a les droits d’exécution, 
-un erreur classique est l'absence  de la variable d'environnement 
+une erreur classique est l'absence  de la variable d'environnement 
 système `JAVA_HOME` voir l'absence du chemin vers le JDK dans le 
 `PATH` de votre machine.
 [Vous trouverez la marche à suivre sur ce wiki pour définir ces variables d'environnements systèmes.](https://www.wikihow.com/Set-Java-Home)
@@ -220,7 +221,7 @@ et un serveur embarqué Tomcat.
 Un serveur Tomcat est un conteneur de servlets open-source développé 
 par la fondation Apache. Il est conçu pour exécuter des applications 
 web basées sur les technologies Java.
-Lors de l'exécution d' une application Spring Boot, le serveur Tomcat 
+Lors de l'exécution d'une application Spring Boot, le serveur Tomcat 
 embarqué démarre automatiquement et prend en charge les requêtes HTTP. 
 Cela simplifie énormément le déploiement, car il n'y a pas besoin de 
 configurer un serveur externe.
@@ -270,13 +271,13 @@ Prenez note de l'url à laquelle répond votre application :
 
 Arrêtez votre serveur et dans le **même terminal**, 
 lancez la commande ajoutant 
-une Java system property
+une _Java System Property_
 
 ```
 java -jar -Dserver.port=8082 demo-1.0.0.jar 
 ```
 
-A quelle url répond votre application ?
+À quelle url répond votre application ?
 
 Finalement lancez la commande qui ajoute en plus une propriété de 
 configuration Spring Boot
@@ -286,12 +287,12 @@ java -jar -Dserver.port=8082 demo-1.0.0.jar --server.port=8083
 ```
 
 Déduisez l'ordre de priorité entre les différentes variables
-(variable d'environnement système, Java system property et 
+(variable d'environnement système, Java System Property et 
 propriété de configuration Spring Boot).
 
 :::
 
 Comprendre la différence entre la portée de ces variables et leurs 
-priorités est utile lorsqu'il faudra dans le prochain TD faire 
+priorités est utile lorsqu'il faudra, dans le prochain TD, faire 
 correspondre un numéro de port défini sur un serveur en ligne avec 
 celui de notre application. 
