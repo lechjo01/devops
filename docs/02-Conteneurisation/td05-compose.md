@@ -2,7 +2,7 @@
 
 ![work in progress](/img/work-in-progress.jpeg)
 
-Date de publication : 2 février 2025
+Date de publication : 21 février 2025
 
 <!--
 Docker Compose est un outil utilisé pour définir et gérer 

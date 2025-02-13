@@ -366,6 +366,103 @@ en ressources.
 :::
 
 
-## Créer un Dockerfile complet
+## Persister des données avec les volumes
 
-![work in progress](/img/work-in-progress.jpeg)
+Vous allez manipuler un conteneur MySQL avec un volume Docker 
+pour persister les données même après la suppression du conteneur.
+
+### Variables d'environnement
+
+Pour passer des variables d'environnement lors de l'exécution 
+d'un conteneur, utilisez l'option -e : 
+
+```bash
+docker run -e NOM_VARIABLE=valeur -e AUTRE_VARIABLE=valeur <image>
+```
+
+Vous pouvez également placer vos variables d'environnement dans 
+un fichier et les utiliser via :
+
+```bash
+docker run --env-file .env <image>
+```
+
+
+:::note Exercice 5 : Un conteneur MySql sans volume
+
+1. Cherchez sur Docker Hub l'image officielle de MySql.
+1. Notez le nom des variables d'environnement à utiliser 
+pour démarrer un tel conteneur : 
+	- nom de l’utilisateur non root
+	- mot de passe de l’utilisateur non root
+	- mot de passe du root
+	- nom de la base de données créée automatiquement au démarrage du conteneur
+1. Démarrez un conteneur MySql avec ces différentes variables.
+
+:::
+
+### Exécution de requêtes dans un conteneur
+
+Pour créez une table dans une base de données MySql, l'outil
+en ligne de commande `mysql` s'utilise comme suit : 
+
+```bash
+mysql -u g12345 -psecret -D mydatabase -e "CREATE TABLE person (MATRICULE INT PRIMARY KEY, NAME VARCHAR(100));"
+```
+
+- `-u` spécifie le nom d'utilisateur pour se connecter à la base de données.
+- `-p` spécifie le mot de passe de l'utilisateur.
+- `-D` spécifie la base de données à utiliser.
+- `-e` spécifie requête SQL à exécuter.
+
+:::note Exercice 6 : Chargement des données
+
+Grâce à la commande `docker exec` et à l'outil en ligne de commande
+`mysql`, créez dans le conteneur MySql la table ``person`` et insérez-y deux
+personnes. Vérifiez le résultat en exécutant la requête `SELECT * FROM person`.
+
+Supprimez ensuite ce conteneur.
+
+:::
+
+### Création du volume
+
+Afin de ne pas perdre les données de la base de données lors de la suppression
+d'un conteneur, vous allez attacher un volume à ce conteneur via la commande : 
+
+```bash
+docker run -v <chemin_hôte>:<chemin_conteneur> <image>
+```
+
+:::note Exercice 7 : Création d'un volume docker
+
+1. Créez un dossier intitulé `mysql_data`.
+1. Lancez un conteneur MySQL en utilisant comme volume le dossier hôte `mysql_data`
+et le dossier du conteneur `/var/lib/mysql`. 
+1. Vérifiez que le dossier `mysql_data` n'est pas vide.
+1. Créez une table `person` dans la base de données.
+1. Insérez des données dans cette table.
+1. Vérifiez les données insérées en affichant le contenu de la table person.
+1. Supprimez le conteneur MySQL, puis recréez-en un nouveau en réutilisant le même volume.
+1. Vérifiez si les données ont été conservées après la suppression et recréation du conteneur
+en affichant le contenu de la table person.
+
+:::
+
+### User non root
+
+Vous constatez que vous n'avez pas les droits en écriture
+sur le contenu du dossier `mysql_data`. Les fichiers qui ont été 
+crées le sont avec l'utilisateur d'exécution du conteneur, c'est à dire, `root`.
+Il existe plusieurs solutions pour palier à ce problème.
+Par exemple vous pouvez demander à Docker d'exécutez la commande `chmod`
+pour changer les droits du dossier `/var/lib/mysql` : 
+
+```bash
+docker exec -ti --user root <conteneur_mysql> chmod -R 777 /var/lib/mysql
+```
+
+Pour en savoir plus sur les bonnes pratiques concernant la 
+gestion des utilisateurs dans une image Docker,  
+[consultez cet article](https://www.docker.com/blog/understanding-the-docker-user-instruction/).
+
