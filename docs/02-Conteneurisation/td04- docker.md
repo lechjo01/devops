@@ -318,8 +318,6 @@ vous limitez le nombre de couches inutiles et réduisez la taille de l'image.
 1. Modifiez le Dockerfile en vous basant sur l'image `eclipse-temurin` (`FROM`). 
 1. Vérifiez sur Docker Hub si cette image contient une version de Java.
 1. Supprimez les instructions devenues inutiles. 
-1. Testez différentes version de l'image `eclipse-temurin` 
-et spécifiquement les versions **alpine**. Notez la taille des différentes images.
 1. Déterminez l'utilité des options `-d` et `-p` dans les commandes : 
 	1. `docker run g12345/spring-demo-no-db -d`
 	1. `docker run g12345/spring-demo-no-db -p 9000:8080`
