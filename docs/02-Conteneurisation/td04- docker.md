@@ -261,7 +261,17 @@ utilisera pour communiquer avec l'extérieur.
 les instructions suivantes du Dockerfile 
 ou les commandes exécutées dans le conteneur, s'exécuteront.
 
-Créez le fichier intitulé `Dockerfile` suivant : 
+
+:::note Exercice
+
+Modifiez le Dockerfile ci-dessous pour conteneuriser votre application
+`spring-demo-no-db`. La commande pour construire une image à
+partir d'un fichier Dockerfile est `docker build -t 'g12345/spring-demo-no-db' .`
+
+Comparez la taille de l'image avec l'image ubuntu d'origine.
+
+Démarrez un conteneur basé sur votre image et consommez le service
+`localhost:8080/config`
 
 ```bash title="Dockerfile" showLineNumbers
 # Image de base Ubuntu 24.04
@@ -284,7 +294,7 @@ WORKDIR /app
 # Copie du fichier JAR de la machine locale vers le conteneur
 COPY your-application.jar /app/your-application.jar
 
-# Expose le port utilisé par l'application (par exemple, 8080)
+# Expose le port utilisé par l'application
 EXPOSE 8080
 
 # Commande pour exécuter l'application
@@ -292,14 +302,7 @@ CMD ["java", "-jar", "/app/your-application.jar"]
 
 ```
 
-Construisez l'image basée sur ce Dockerfile.
-Dans le dossier de votre Dockerfile, utilisez la commande 
-
-```
-docker build -t 'g12345/spring-demo-no-db' .
-```
-
-Comparez la taille de l'image avec l'image ubuntu d'origine.
+:::
 
 :::warning Taille et instruction RUN
 
@@ -309,11 +312,6 @@ vous limitez le nombre de couches inutiles et réduisez la taille de l'image.
 
 :::
 
-Exécutez un conteneur basé sur cette image et consommez le service web de l'application spring-boot.
-
-```
-docker run g12345/spring-demo-no-db
-```
 
 :::note Exercice
 
@@ -327,6 +325,7 @@ et spécifiquement les versions **alpine**. Notez la taille des différentes ima
 	1. `docker run g12345/spring-demo-no-db -p 9000:8080`
 
 :::
+
 
 ## Créer un Dockerfile complet
 
