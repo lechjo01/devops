@@ -86,6 +86,7 @@ Elle sert de point de départ pour créer des conteneurs.
 
 Consultez le site de [Docker Hub](https://hub.docker.com) 
 et cherchez quelles sont les versions de l'image ubuntu disponibles au téléchargement.
+La version 24.04 est-elle disponible ?
 
 Le début de l'apprentissage de Docker consiste en la maîtrise des 
 commandes de base pour gérer des images. 
@@ -100,7 +101,8 @@ le registre avec la commande `docker pull ubuntu:24.04`.
 1. Vérifiez la présence de l'image sur votre machine avec la 
 commande `docker image ls`.
 1. **Notez la taille** de cette image en MB.
-1. Effacez l'image via la commande `docker rmi ubuntu:24.04`.
+1. **Notez l'identifiant** de cette image.
+1. Effacez l'image via la commande `docker rmi <identifiant de l'image>`.
 1. Listez à nouveau les images pour vérifier le succès de la suppression.
 1. Cherchez, téléchargez et **comparez la taille** de l'image 
 de la dernière version de Alpine Linux (`alpine:latest`).
@@ -129,11 +131,13 @@ Suivez ce tutoriel et prenez notes des différentes commandes.
 1. Exécutez la commande `docker run --name devops-hello ubuntu:24.04  /bin/echo 'Hello World!'`.
 1. Vérifiez que la commande a bien affiché `Hello World` dans le terminal.
 1. Consultez la liste des conteneurs via `docker ps -a`.
+1. Comparez le résultat de la commande précédente avec le résultat de la commande `docker ps`.
+Que constatez-vous ?
 1. Vérifiez dans les logs du conteneur, via la commande `docker logs devops-hello`, 
 que l'instruction a bien été exécutée.
 1. Démarrez à nouveau le conteneur via `docker start devops-hello`.
 1. Consultez à nouveau les logs et vérifiez la seconde exécution de l'instruction.
-1. Consultez le **statut** du conteneur via `docker ps -a`.
+1. Consultez le **statut** du conteneur via `docker ps -a`. Le conteneur est-il en cours d’exécution ?
 
 :::
 
@@ -187,9 +191,9 @@ allumé 5 minutes afin que nous puissions le manipuler un peu plus.
 
 1. Exécutez la commande `docker run --name devops-sleep ubuntu:24.04 /bin/sleep 3600`.
 1. **Ouvrez un second terminal** et consultez le statut du conteneur via la commande `docker ps -a`.
-1. Entrez **DANS** le conteneur via la commande `docker exec -it devops-sleep /bin/bash`..
+1. Entrez **DANS** le conteneur via la commande `docker exec -it devops-sleep /bin/bash`.
     1. Listez les fichiers/dossiers présents dans le conteneur `ls -lrtd *`.
-	1. Vérifiez la présence des fichiers `/bin/echo` et `/bin/sleep`.
+	1. Vérifiez la présence des fichiers `/bin/bash`, `/bin/echo` et `/bin/sleep`.
     1. Déplacez-vous dans le dossier `/home/ubuntu` via la commande `cd`.
     1. Essayez de cloner le dépôt `git clone https://git.esi-bru.be/4dop1dr-ressources/demo-no-db.git`.
     1. `git` n'est pas installé dans ce conteneur ubuntu, installez le via `apt -y update` et `apt -y install git`.
@@ -220,17 +224,19 @@ sur l'image d'origine.
 Vous pouvez décider d'enregistrer ces changements dans une nouvelle image
 afin de disposer d'une image ubuntu avec git déjà installé. 
 
-Commencez par noter l'identifiant de l'image que vous avez utilisé.
-Cette identifiant est affiché via la commande `docker image ls`.
+Commencez par noter l'identifiant du conteneur que vous avez utilisé.
+Cette identifiant est affiché via la commande `docker ps -a`.
 Ensuite exécutez la commande : 
 
 ```
-docker commit -a 'g12345' -m "Installation de git dans l'image" <identifiant_image> ajout_de_git
+docker commit -a 'g12345' -m "Installation de git dans l'image" <identifiant_conteneur> ajout_de_git
 ```
 
-Consultez cette nouvelle image via `docker image ls` et 
+Consultez la nouvelle image créée via `docker image ls` et 
 prenez attention au **nom** de cette image et comparez la **taille** 
 de cette image avec celle de l'image ubuntu d'origine.
+
+Vous pouvez consultez le détail de cette nouvelle image via la commande `docker history ajout_de_git`.
 
 ## Créer une image via un Dockerfile
 
@@ -247,7 +253,7 @@ est disponible via la documentation mais voici celles que nous allons utiliser
 - `CMD` : Définit la commande exécutée lorsque le conteneur démarre.
 - `LABEL` : ajoute des métadonnées à l'image.
 - `ENV` : définit des variables d'environnement 
-accessibles pendant la construction de l'image et au moment .
+accessibles pendant la construction de l'image et au moment
 de l'exécution du conteneur.
 - `EXPOSE` : indique au Dockerfile quels ports le conteneur 
 utilisera pour communiquer avec l'extérieur.
@@ -312,13 +318,16 @@ docker run g12345/spring-demo-no-db
 :::note Exercice
 
 1. Modifiez le Dockerfile en vous basant sur l'image `eclipse-temurin` (`FROM`). 
+1. Vérifiez sur Docker Hub si cette image contient une version de Java.
 1. Supprimez les instructions devenues inutiles. 
 1. Testez différentes version de l'image `eclipse-temurin` 
-et spécifiquement les version **alpine**. Notez la taille des différentes images.
+et spécifiquement les versions **alpine**. Notez la taille des différentes images.
 1. Déterminez l'utilité des options `-d` et `-p` dans les commandes : 
 	1. `docker run g12345/spring-demo-no-db -d`
 	1. `docker run g12345/spring-demo-no-db -p 9000:8080`
 
-Les informations concernant l'image `eclipse-temurin` sont disponibles sur Docker Hub.
-
 :::
+
+## Créer un Dockerfile complet
+
+![work in progress](/img/work-in-progress.jpeg)
