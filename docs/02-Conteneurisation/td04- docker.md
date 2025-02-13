@@ -274,7 +274,9 @@ Comparez la taille de l'image `g12345/spring-demo-no-db` avec l'image ubuntu d'o
 
 Vérifiez vos modifications en démarrant un conteneur basé sur 
 l'image `g12345/spring-demo-no-db` et consommez le service grâce à l'url 
-`localhost:8080/config`
+`localhost:8080/config`. Déterminez l'utilité des options `-d` et `-p` dans les commandes : 
+- `docker run g12345/spring-demo-no-db -d`
+- `docker run g12345/spring-demo-no-db -p 9000:8080`
 
 ```bash title="Dockerfile" showLineNumbers
 # Image de base Ubuntu 24.04
@@ -311,7 +313,7 @@ CMD ["java", "-jar", "/app/your-application.jar"]
 
 Chaque instruction `RUN` ajoute une **couche** à l'image Docker. 
 En combinant les commandes dans une seule instruction ``RUN``, 
-vous limitez le nombre de couches inutiles et réduisez la taille de l'image.
+vous limitez le nombre de couches inutiles.
 
 :::
 
@@ -321,25 +323,21 @@ vous limitez le nombre de couches inutiles et réduisez la taille de l'image.
 1. Modifiez le Dockerfile en vous basant sur l'image `eclipse-temurin` (`FROM`). 
 1. Vérifiez sur Docker Hub si cette image contient une version de Java.
 1. Supprimez les instructions devenues inutiles. 
-1. Déterminez l'utilité des options `-d` et `-p` dans les commandes : 
-	1. `docker run g12345/spring-demo-no-db -d`
-	1. `docker run g12345/spring-demo-no-db -p 9000:8080`
 
 :::
 
 Lorsqu'on automatise le déploiement d'une application, on doit
-souvent effectuer la création du jar au sein du conteneur.
+souvent effectuer l'empaquetage (la création du jar dans notre cas) au sein du conteneur.
 Essayez de vous entraîner à cette pratique avec l'exercice
 suivant.
 
 :::note Exercice 3 : Empaqueter dans le conteneur
 
 Recherchez sur Docker Hub l'image officielle de maven.
-
 Modifiez le Dockerfile précédent pour se baser sur cette image
-de maven. Ensuite ce Dockerfile doit copier les
-sources et le pom.xml de votre application dans le conteneur.
-Finalement ce Dockerfile doit empaqueter l'application
+de maven. Ce Dockerfile doit copier les
+sources et le pom.xml de votre application dans le conteneur
+et empaqueter l'application
 au sein du conteneur grâce à maven.
 
 Vérifiez vos modifications en consommant le service fourni
