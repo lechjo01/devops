@@ -140,8 +140,6 @@ spring.application.name=demo pour devops
 server.port=8080
 ```
 
-Ensuite empaquetez votre application.
-
 Exportez dans **le même terminal** les variables d'environnements 
 systèmes comme ci-dessous : 
 
@@ -154,7 +152,8 @@ export SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true
 
 Suite à ces exports, les variables supprimées du fichier `application.properties`
 sont définies dans votre terminal.
-Démarrez votre application et consommez le service REST 
+
+Empaquetez à présent votre application, démarrez-la et consommez le service REST 
 afin de **vérifiez** que l'application fonctionne suite à ces changements.
 
 ### Sur la machine distante 
