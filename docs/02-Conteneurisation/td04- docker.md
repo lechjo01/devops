@@ -262,15 +262,18 @@ les instructions suivantes du Dockerfile
 ou les commandes exécutées dans le conteneur, s'exécuteront.
 
 
-:::note Exercice
+:::note Exercice 1 : Conteneuriser un jar
 
 Modifiez le Dockerfile ci-dessous pour conteneuriser votre application
-`spring-demo-no-db`. La commande pour construire une image à
-partir d'un fichier Dockerfile est `docker build -t 'g12345/spring-demo-no-db' .`
+`demo-no-db`. Ce premier Dockerfile doit copier le fichier `demo-1.0.0.jar` dans 
+le conteneur. La commande pour construire une image à
+partir d'un fichier intitulé *Dockerfile* présent dans le repertoire courant est 
+`docker build -f Dockerfile -t g12345/spring-demo-no-db .`
 
-Comparez la taille de l'image avec l'image ubuntu d'origine.
+Comparez la taille de l'image `g12345/spring-demo-no-db` avec l'image ubuntu d'origine.
 
-Démarrez un conteneur basé sur votre image et consommez le service
+Vérifiez vos modifications en démarrant un conteneur basé sur 
+l'image `g12345/spring-demo-no-db` et consommez le service grâce à l'url 
 `localhost:8080/config`
 
 ```bash title="Dockerfile" showLineNumbers
@@ -313,7 +316,7 @@ vous limitez le nombre de couches inutiles et réduisez la taille de l'image.
 :::
 
 
-:::note Exercice
+:::note Exercice 2 : Utiliser une source image adaptée
 
 1. Modifiez le Dockerfile en vous basant sur l'image `eclipse-temurin` (`FROM`). 
 1. Vérifiez sur Docker Hub si cette image contient une version de Java.
@@ -321,6 +324,46 @@ vous limitez le nombre de couches inutiles et réduisez la taille de l'image.
 1. Déterminez l'utilité des options `-d` et `-p` dans les commandes : 
 	1. `docker run g12345/spring-demo-no-db -d`
 	1. `docker run g12345/spring-demo-no-db -p 9000:8080`
+
+:::
+
+Lorsqu'on automatise le déploiement d'une application, on doit
+souvent effectuer la création du jar au sein du conteneur.
+Essayez de vous entraîner à cette pratique avec l'exercice
+suivant.
+
+:::note Exercice 3 : Empaqueter dans le conteneur
+
+Recherchez sur Docker Hub l'image officielle de maven.
+
+Modifiez le Dockerfile précédent pour se baser sur cette image
+de maven. Ensuite ce Dockerfile doit copier les
+sources et le pom.xml de votre application dans le conteneur.
+Finalement ce Dockerfile doit empaqueter l'application
+au sein du conteneur grâce à maven.
+
+Vérifiez vos modifications en consommant le service fourni
+par le conteneur construit par cette image.
+
+:::
+
+Utiliser une image multi-stage, où la compilation est faite dans une première étape 
+et seule l’application compilée est copiée dans l’image finale permet d'optimiser 
+les ressources. Pour réaliser un tel Dockerfile vous devez : 
+
+- définir une première image pour la compilation
+- créer une seconde image pour l'exécution
+
+Essayez-vous à cette pratique avec l'exercice ci-dessous.
+
+:::note Exercice 4 : Optimiser une image avec une build multi-stage
+
+Améliorez le Dockerfile précédent pour utiliser une 
+multi stage build.
+
+Comparez les tailles des différentes images produites dans
+ces exercices afin de déterminer la pratique la plus efficace
+en ressources.
 
 :::
 
