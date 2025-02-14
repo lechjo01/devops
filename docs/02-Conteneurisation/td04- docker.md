@@ -415,7 +415,7 @@ pour démarrer un tel conteneur :
 
 ### Exécution de requêtes dans un conteneur
 
-Pour créez une table dans une base de données MySql, l'outil
+Pour créer une table dans une base de données MySql, l'outil
 en ligne de commande `mysql` s'utilise comme suit : 
 
 ```bash
