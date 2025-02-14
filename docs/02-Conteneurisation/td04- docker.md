@@ -240,9 +240,11 @@ Vous pouvez consultez le détail de cette nouvelle image via la commande `docker
 
 ## Créer une image via un Dockerfile
 
-Un Dockerfile est un fichier texte qui contient une série d'instructions permettant 
-de construire une image Docker. Ce fichier décrit comment configurer l'environnement 
-et les dépendances nécessaires pour exécuter une application dans un conteneur.
+Après avoir exploré docker commit pour créer une image à partir d'un conteneur en cours 
+d'exécution, nous allons maintenant découvrir une approche plus reproductible et modulaire,
+l'utilisation d'un Dockerfile, qui permet d'automatiser la création d'images de manière déclarative
+Ce fichier texte contient une série d'instructions permettant 
+de construire une image Docker.
 
 [La liste des instructions (directives)](https://docs.docker.com/reference/dockerfile/) 
 est disponible via la documentation mais voici celles que nous allons utiliser
@@ -261,6 +263,12 @@ utilisera pour communiquer avec l'extérieur.
 les instructions suivantes du Dockerfile 
 ou les commandes exécutées dans le conteneur, s'exécuteront.
 
+### Conteneuriser un fichier jar
+
+Commencez votre apprentissage des Dockerfiles en conteneurisant 
+une application Java sous forme de fichier .jar. 
+L'objectif est de créer une image Docker capable d'exécuter une application 
+de manière portable et isolée.
 
 :::note Exercice 1 : Conteneuriser un jar
 
@@ -326,6 +334,8 @@ vous limitez le nombre de couches inutiles.
 
 :::
 
+### Ajouter l'étape d'empaquetage au Dockerfile
+
 Lorsqu'on automatise le déploiement d'une application, on doit
 souvent effectuer l'empaquetage (la création du jar dans notre cas) au sein du conteneur.
 Essayez de vous entraîner à cette pratique avec l'exercice
@@ -344,6 +354,8 @@ Vérifiez vos modifications en consommant le service fourni
 par le conteneur construit par cette image.
 
 :::
+
+### Optimisation des ressources
 
 Utiliser une image multi-stage, où la compilation est faite dans une première étape 
 et seule l’application compilée est copiée dans l’image finale permet d'optimiser 
