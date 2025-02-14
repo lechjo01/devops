@@ -241,8 +241,8 @@ Vous pouvez consultez le détail de cette nouvelle image via la commande `docker
 ## Créer une image via un Dockerfile
 
 Après avoir exploré docker commit pour créer une image à partir d'un conteneur en cours 
-d'exécution, nous allons maintenant découvrir une approche plus reproductible et modulaire,
-l'utilisation d'un Dockerfile, qui permet d'automatiser la création d'images de manière déclarative
+d'exécution, vous allez découvrir une approche plus reproductible,
+l'utilisation d'un Dockerfile, qui permet d'automatiser la création d'images de manière déclarative.
 Ce fichier texte contient une série d'instructions permettant 
 de construire une image Docker.
 
