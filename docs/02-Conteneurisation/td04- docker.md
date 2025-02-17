@@ -24,8 +24,8 @@ Ce TD vous apprendra à manipuler les bases de la gestion des conteneurs.
 
 ## Installer Docker
 
-L'installation de Docker, expliquée ci-dessous, dépend de votre 
-système d'exploitation.
+Docker est déjà installé sur les PC de l'école.
+Son installation sur votre machine, expliquée ci-dessous, dépend de votre système d'exploitation.
 Une fois installé, n'oubliez pas de vérifier que Docker fonctionne 
 via la commande `docker --version`.
 
@@ -92,6 +92,14 @@ Le début de l'apprentissage de Docker consiste en la maîtrise des
 commandes de base pour gérer des images. 
 Parcourez ce tutoriel et prenez note des différentes commandes.
 
+:::warning
+
+Sur les PC de l'école, le démon n'est pas lancé par défaut.
+Pour que les commandes `docker` ci-dessous fonctionnent, 
+il faut d'abord exécuter Docker Desktop qui va se charger de lancer le démon.
+
+:::
+
 :::info tutoriel image Docker
 
 1. Vérifiez qu'aucune image n'est présente sur votre machine via 
@@ -150,18 +158,6 @@ ubuntu `docker run ubuntu:24.04`
 - association du nom `devops-hello` avec le conteneur via
 `--name devops-hello`
 
-Remarquez que l'ordre des paramètres est important. 
-`docker run  ubuntu:24.04  /bin/echo --name devops-hello 'Hello World!'` 
-conduira à une erreur.
-
-:::warning conteneur anonyme
-
-Vous pouvez exécutez un conteneur anonyme 
-`docker run ubuntu:24.04  /bin/echo 'Hello World!'`. 
-Il faudra simplement récupérer son nom via `docker ps -a`.
-
-:::
-
 L'exécution de la commande `docker run` précédente affiche 
 dans le terminal le message suivant : 
 
@@ -180,6 +176,18 @@ Ce message retrace les étapes réalisées par Docker pour exécuter le conteneu
 1. Les couches de l'image sont téléchargées individuellement (un `Pull` par couche) .
 1. Une fois l'image prête, Docker exécute la commande `/bin/echo 'Hello World!'` dans un conteneur basé sur cette image.
 1. Le résultat de la commande est affiché (`Hello World!`) avant que **le conteneur ne se termine**.
+
+Remarquez que l'ordre des paramètres est important. 
+`docker run  ubuntu:24.04  /bin/echo --name devops-hello 'Hello World!'` 
+conduira à une erreur.
+
+:::warning conteneur anonyme
+
+Vous pouvez exécutez un conteneur anonyme 
+`docker run ubuntu:24.04  /bin/echo 'Hello World!'`. 
+Il faudra simplement récupérer son nom via `docker ps -a`.
+
+:::
 
 ### A l'intérieur d'un conteneur
 
@@ -262,6 +270,7 @@ utilisera pour communiquer avec l'extérieur.
 - `WORKDIR` : définit le répertoire courant dans lequel 
 les instructions suivantes du Dockerfile 
 ou les commandes exécutées dans le conteneur, s'exécuteront.
+Ce répertoire est créé s'il n'existe pas déjà.
 
 ### Conteneuriser un fichier jar
 
@@ -283,8 +292,8 @@ Comparez la taille de l'image `g12345/spring-demo-no-db` avec l'image ubuntu d'o
 Vérifiez vos modifications en démarrant un conteneur basé sur 
 l'image `g12345/spring-demo-no-db` et consommez le service grâce à l'url 
 `localhost:8080/config`. Déterminez l'utilité des options `-d` et `-p` dans les commandes : 
-- `docker run g12345/spring-demo-no-db -d`
-- `docker run g12345/spring-demo-no-db -p 9000:8080`
+- `docker run -d g12345/spring-demo-no-db`
+- `docker run -p 9000:8080 g12345/spring-demo-no-db`
 
 ```bash title="Dockerfile" showLineNumbers
 # Image de base Ubuntu 24.04
