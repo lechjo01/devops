@@ -88,9 +88,6 @@ Gérer plusieurs conteneurs manuellement peut vite devenir complexe.
 Docker Compose simplifie cette gestion en permettant de définir et orchestrer 
 plusieurs services dans un simple fichier YAML.
 
-Dans cette section, nous commencerons par apprendre à manipuler la syntaxe YAML, a
-vant de voir comment déployer une application complète avec docker-compose.yml.
-
 ### Manipulation de YAML
 
 Avant de pouvoir tirer pleinement parti de Docker Compose, il est essentiel de maîtriser
