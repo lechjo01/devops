@@ -254,9 +254,80 @@ plusieurs services dans un simple fichier YAML.
 Avant de pouvoir tirer pleinement parti de Docker Compose, il est essentiel de maîtriser
 la syntaxe des fichiers YAML. 
 Une bonne compréhension de YAML vous permettra de structurer correctement vos fichiers 
-docker-compose.yml et d'éviter les erreurs courantes.
+`docker-compose.yml` et d'éviter les erreurs courantes.
 
+Un fichier YAML (Yet Another Markup Language) est un format de 
+données utilisé pour stocker et échanger des informations 
+structurées. Les données sont représentées sous forme de paires
+`clé: valeur`. Ce format utilise **uniquement** les espaces pour l’indentation.
 
+```yaml title="config.yml"
+# Configuration de l'application
+application:
+  name: "Gestionnaire de tâches"
+  version: "1.0.0"
+  debug: true
+
+# Liste des utilisateurs
+users:
+  - name: "Alice"
+    role: "admin"
+    email: "alice@example.com"
+  - name: "Bob"
+    role: "user"
+    email: "bob@example.com"
+
+# Paramètres de la base de données
+database:
+  host: "localhost"
+  port: 5432
+  username: "admin"
+  password: "secret"
+```
+
+:::note Exercice : YAML et erreurs courantes
+
+Trouvez les erreurs dans les fichiers YAML proposés ci-dessous.
+Pour vous aider vous pouvez vérifier que le fichier respecte 
+le format via [l'outil en ligne yamllint.com](https://www.yamllint.com/).
+
+#### Exemple 1
+
+```yaml
+database:
+    host: localhost
+  port: 5432
+```
+
+#### Exemple 2
+
+```yaml
+users:
+  - name: Alice
+    role: admin
+    email: alice@example.com
+  - name: Bob
+     role: user
+```
+
+#### Exemple 3
+
+```yaml
+url: http://example.com/path:80
+```
+
+#### Exemple 4
+
+```yaml
+description: This is a test: with a colon
+```
+
+#### Exemple 5
+
+```yaml
+message: This is a test # with a comment caracter
+```
+:::
 
 ### Déployer une application avec Docker Compose
 
