@@ -171,23 +171,66 @@ Un tableau récapitulatif est disponible sur la [documentation des directives de
 Vous avez vu comment `ENTRYPOINT` et `CMD` influencent le comportement 
 d'un conteneur au démarrage. Cependant, lorsqu'on construit une image 
 Docker, il est essentiel de ne pas inclure des fichiers inutiles pour 
-optimiser la taille et la sécurité. C'est là qu'intervient `.dockerignore`, 
-qui vous permet de contrôler ce que Docker copie dans l'image. 
-Voyons comment l'utiliser efficacement.
+optimiser la **taille** et la **sécurité**. C'est là qu'intervient `.dockerignore`, 
+qui vous permet de contrôler ce que Docker copie dans l'image.  Ce fichier fonctionne comme un `.gitignore`.
 
-Exercice
+Pour l'utiliser il suffit de créer au même niveau que le fichier `Dockerfile`, le fichier `.dockerignore`.
+Ce fichier est à adapter suivant les projets. On peut
+à titre d'exemple imaginer la version ci-dessous pour 
+un projet développé en python : 
+
+```bash title=".dockerignore"
+# Ignorer les fichiers de configuration sensibles
+# contenant des mots de passes ou des clés API
+.env   
+
+# Environnement virtuel 
+venv/         
+
+# Ignorer les fichiers temporaires et inutiles  
+
+## Fichiers de logs (ex: `server.log`) 
+*.log   
+## Fichiers compilés en bytecode Python     
+*.pyc  
+## Fichier caché généré automatiquement par macOS      
+.DS_Store    
+
+# Ignorer les fichiers liés à Git  
+## Dossier contenant l’historique Git
+.git/ 
+## Fichier de configuration Git         
+.gitignore   
+
+```
+
+La commande `docker build` exluera les fichiers et dossiers mentionnés dans le ``.dockerignore``.
+
+:::note Exercice 1 : Exclure application.properties
+
+Comme le fichier `application.properties` peut
+contenir des données sensibles tel que le mot de passe
+de la base de données, excluez le de l'image construite à
+partir de l'application spring-boot `demo-no-db` créée
+dans le td précédent.
+
+Comment allez-vous vérifiez que ce fichier est bien 
+absent des conteneurs générés à partir de cette image ? 
+
+:::
 
 
 :::info Optimiser la taille des images Docker
 
-A travers les exercices vous pouvez noter plusieurs techniques d'optimisation : 
+A travers les exercices des tds précédents et les
+exposés du cous théorique, vous pouvez retenir plusieurs techniques d'optimisation : 
 
-- Utiliser une image de base légère
-- Utiliser .dockerignore
-- Minimiser le nombre de couches (RUN en une seule commande)
-- Utiliser multi-stage builds
-- Nettoyer les dépendances temporaires
-- Éviter d’installer des outils inutiles
+- Utiliser une image de base légère (`FROM ... -alpine`).
+- Utiliser `.dockerignore`.
+- Minimiser le nombre de couches (`RUN` en une seule commande).
+- Utiliser le principe du **multi-stage builds**.
+- Nettoyer les dépendances temporaires.
+- Éviter d’installer des outils inutiles.
 
 :::
 
