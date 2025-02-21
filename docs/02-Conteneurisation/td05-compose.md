@@ -46,7 +46,125 @@ qui n’ont pas encore été abordées.
 
 ### ENTRYPOINT ou CMD
 
+Lorsque vous utilisez des Dockerfiles, vous constatez
+que deux instrutions assez proches sont utilisées pour 
+demander d'exécutez une action au démarage du conteneur
+`CMD` et `ENTRYPOINT`.
 
+Afin d'y voir plus clair dans la distinction entre ces 
+deux directives, créez un Dockerfile à partir d'une image alpine
+
+
+```Dockerfile title="Dockerfile"
+FROM alpine:latest
+```
+
+Créez l'image associée à ce Dockerfile
+
+```bash
+docker build -t test-no-entrypoint-no-cmd .
+```
+
+:::tip
+
+Si vous souhaitez appeler le fichier autrement
+que Dockerfile, le flag `-f` est disponible : 
+
+```bash
+docker build -f <NOM_DOCKERFILE> -t test-no-entrypoint-no-cmd .
+```
+
+:::
+
+Démarrez un conteneur basé sur cette image via la commande : 
+
+```bash
+docker run test-no-entrypoint-no-cmd
+```
+
+Le conteneur démarre et aucune action en semble avoir été exécutée. Inspectez la configuraion de l'image et **cherchez** la valeur des directives CMD et Entrypoint de ce conteneur.
+
+```bash
+docker inspect test-no-entrypoint-no-cmd
+```
+
+Vous devez constater via cette inspection que la valeur de la direcive **CMD** est `/bin/sh`.
+Ce qui signifie que la commande `docker run` effectue : 
+- la création du conteneur à partir de alpine.
+- l'execution de la commande `/bin/sh` dans alpine.
+- dès que la commande `/bin/sh` s'arrête le conteneur s'arrête.
+
+Avant de passer à la suite, effacez ce conteneur de test, en utilisant la commande `docker rm test-no-entrypoint-no-cmd`.
+
+:::tip
+
+Lorsque vous démarrez des conteneurs temporaires, vous pouvez les effacer automatiquement arès leur exécution en utilisant le flag `-rm` comme ci-dessous
+
+```bash
+docker run --rm test-no-entrypoint-no-cmd
+```
+
+:::
+
+Modifiez votre Dockerfile et créez une image écrasan la directive **CMD** : 
+
+
+```Dockerfile title="Dockerfile"
+FROM alpine:latest
+
+CMD ["echo", "Hello, World!"]
+```
+
+Construisez l'image `test-no-entrypoint-cmd`, démarrez
+un conteneur pour tester cette image.
+
+La commande `docker run` effectue : 
+- la création du conteneur à partir de alpine.
+- l'execution de la commande `/bin/echo "Hello, World!"` dans alpine.
+- dès que la commande `/bin/echo` s'arrête le conteneur s'arrête.
+
+Si vous essayer de démarrer le même conteneur en passant
+un argument, une erreur apparait.
+
+```bash
+docker run --rm test-no-entrypoint-no-cmd "Bonjout tout le monde"
+```
+
+Il semble impossible de pouvoir passer un argument à docker run avec cette image.
+
+Effacez votre conteneur et modifiez votre Dockerfile pour
+ajouter la direcive **ENTRYPOINT** ajoutant la possibilité de gérer des arguments.
+
+```Dockerfile title="Dockerfile"
+FROM alpine:latest  
+
+ENTRYPOINT ["echo"]
+
+CMD ["Hello, World!"]
+```
+
+Construisez l'image `test-entrypoint-cmd`, démarrez
+un conteneur pour tester cette image.
+Vous constatez que "Hello, World!" s'affiche dans
+le terminal.
+
+Si vous essayez à nouveau de passer un argument, vous constaterez que la valeur donnée à la directive **CMD**
+a été écrasée.
+
+```bash
+docker run --rm test-entrypoint-cmd "Bonjout tout le monde"
+```
+
+:::note ENTRYPOINT ou CMD
+**ENTRYPOINT** est utilisé pour définir un programme 
+principal qui **s'exécutera toujours**, même si des 
+arguments sont passés.
+**CMD** définit des **arguments par défaut** pour ENTRYPOINT, 
+mais peut être remplacé si des arguments sont fournis au 
+docker run.
+:::
+
+Un tableau récapitulatif est disponible sur la [documentation des directives de docker](https://docs.docker.com/reference/dockerfile/#understand-how-cmd-and-entrypoint-interact).
 
 ### Optimiser la taille des images Docker
 
