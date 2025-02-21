@@ -234,15 +234,6 @@ exposés du cous théorique, vous pouvez retenir plusieurs techniques d'optimisa
 
 :::
 
-
-### Automatiser la mise à jour d’un conteneur
-
-Grâce à *.dockerignore*, vous avez appris à alléger vos images 
-Docker en excluant les fichiers inutiles. Mais une fois votre 
-application empaquetée, vous devez pouvoir la mettre à jour proprement. 
-Voyons maintenant comment écrire un script permettant d'arrêter un conteneur, 
-le supprimer et le redémarrer avec une version plus récente.
-
 ## Docker compose
 
 Gérer plusieurs conteneurs manuellement peut vite devenir complexe. 
@@ -331,12 +322,65 @@ message: This is a test # with a comment caracter
 
 ### Déployer une application avec Docker Compose
 
-Vous savez maintenant comment gérer un conteneur individuellement. 
-Cependant, dans une application réelle, vous avez souvent plusieurs 
-services qui doivent fonctionner ensemble, comme une application Spring 
-et une base de données MySQL. Pour simplifier la gestion de ces services 
-interconnectés, vous allez utiliser *Docker Compose* et écrire un fichier 
-`docker-compose.yml` pour orchestrer notre environnement.
+#### Dockerfile pour une application avec base de données
+
+Ecrire le Dockerfile permettant de
+lancer l'application Spring-boot demo via la 
+commande
+
+```bash
+docker run -d -e 
+spring.datasource.url=jdbc:mysql://db:3306/mydatabase?useSSL=false&allowPublicKeyRetrieval=true
+spring.datasource.username=root
+spring.datasource.password=rootpassword
+spring.jpa.hibernate.ddl-auto=update
+spring.sql.init.mode=always
+... spring-demo
+```
+
+#### Ecriture du docker-compose.yml
+```yaml
+version: '3.8'
+
+services:
+  app:
+    build: ./app
+    container_name: spring-app
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/mydatabase?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=mydatabase
+      - MYSQL_USER=myuser
+      - MYSQL_PASSWORD=mypassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db-data:
+```
 
 
 ### Gérer la charge avec Nginx
@@ -346,6 +390,204 @@ MySQL grâce à Docker Compose. Mais dans un environnement réel, vous devez
 souvent gérer la montée en charge en équilibrant le trafic entre plusieurs 
 instances de votre application. Pour cela, vous allez ajouter un *Load Balancer* 
 avec *Nginx* et adapter votre *docker-compose.yml* en conséquence.
+
+
+#### Utiliser nginx comme serveur web
+
+:::note wikipedia
+
+NGINX est un logiciel libre de serveur Web (ou HTTP) ainsi qu'un proxy inverse écrit par Igor Sysoev, dont le développement a débuté en 2002. C'est depuis avril 2019, le serveur web le plus utilisé au monde d'après Netcraft, ou le deuxième serveur le plus utilisé d'après W3techs. 
+
+:::
+
+Peut servir des pages HTML statiques
+
+```yaml
+mkdir -p nginx-site/html
+cd nginx-site
+touch html/index.html
+touch nginx.conf
+```
+
+Dans nginx-site/html/index.html, ajoutez :
+
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mon serveur Nginx pour leslabos de 4dop1dr</title>
+</head>
+<body>
+    <h1>Bienvenue sur mon serveur Nginx avec Docker !</h1>
+</body>
+</html>
+```
+
+Lancer la commande
+
+```bash
+docker run -d --name nginx-site -p 8080:80 -v $(pwd)/html:/usr/share/nginx/html:ro nginx
+```
+
+Dans un navigateur, allez sur http://localhost:8080 et vous devriez voir votre page personnalisée.
+
+#### Utiliser nginx comme reverse proxy
+
+
+Agit comme un intermédiaire entre les clients et un serveur backend (ex : Node.js, Python, Java).
+
+Sécurise les requêtes en masquant l’IP du backend.
+
+
+```bash
+mkdir -p nginx-proxy
+cd nginx-proxy
+touch nginx.conf
+```
+
+Dans nginx-proxy/nginx.conf, ajoutez :
+
+```json
+events { }
+
+http {
+    server {
+        listen 80;
+
+        location /he2b {
+            proxy_pass https://he2b.be/;
+        }
+
+        location /google {
+            proxy_pass https://www.google.be/;
+        }
+    }
+}
+```
+
+Lancer la commande 
+
+```bash
+docker run -d --name nginx-proxy -p 8081:80 -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro nginx
+```
+
+Pour utiliser une application personnel
+
+
+```yaml
+version: '3.8'
+
+services:
+  app:
+    build: ./app
+    container_name: spring-app
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+```
+
+#### Utiliser nginx comme load balancer
+
+Distribue le trafic entre plusieurs serveurs backend pour éviter la surcharge.
+
+```yaml
+version: '3.8'
+
+services:
+  app1:
+    build: ./app
+    container_name: spring-app-1
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8081
+    networks:
+      - app-network
+
+  app2:
+    build: ./app
+    container_name: spring-app-2
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8082
+    networks:
+      - app-network
+
+  app3:
+    build: ./app
+    container_name: spring-app-3
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8083
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-load-balancer
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - app1
+      - app2
+      - app3
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+```
+
+Modifiez la configuration : 
+
+
+```json
+events { }
+
+http {
+    upstream spring_backend {
+        server app1:8081;
+        server app2:8082;
+        server app3:8083;
+    }
+
+    server {
+        listen 80;
+
+        location /api/ {
+            proxy_pass http://spring_backend/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+}
+```
+
+Lancer plusieurs fois la commande `curl http://localhost:8080/config/`. Est-ce que le numéro de port est identique ?
 
 ### Microservices et Docker Compose
 
