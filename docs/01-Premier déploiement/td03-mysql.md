@@ -154,6 +154,11 @@ Suite à ces exports, les variables supprimées du fichier `application.properti
 Dans **le même terminal**, empaquetez à présent votre application, démarrez-la et consommez le service REST 
 afin de **vérifiez** que l'application fonctionne suite à ces changements.
 
+:::warning Mode développement vs mode déploiement
+Le *jar* est créé en mode **déploiement**, pas en mode **développement**; il ne contient pas de console h2.
+Pour voir la console h2, exécutez l'application en mode développement via un bouton de votre IDE ou via la commande `mvn spring-boot:run`.
+:::
+
 ### Sur la machine distante 
 
 Connectez-vous à votre compte Alwaysdata et consultez la page des sites. 
