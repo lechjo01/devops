@@ -140,8 +140,7 @@ spring.application.name=demo pour devops
 server.port=8080
 ```
 
-Exportez dans **le même terminal** les variables d'environnements 
-systèmes comme ci-dessous : 
+Dans un terminal *bash*, exportez les variables d'environnements gsystèmes comme ci-dessous : 
 
 ```bash title="déclaration des variables dans le terminal"
 export SPRING_DATASOURCE_URL=jdbc:h2:mem:mydatabase
@@ -150,10 +149,9 @@ export SPRING_DATASOURCE_PASSWORD=
 export SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true
 ```
 
-Suite à ces exports, les variables supprimées du fichier `application.properties`
-sont définies dans votre terminal.
+Suite à ces exports, les variables supprimées du fichier `application.properties` sont définies dans votre terminal.
 
-Empaquetez à présent votre application, démarrez-la et consommez le service REST 
+Dans **le même terminal**, empaquetez à présent votre application, démarrez-la et consommez le service REST 
 afin de **vérifiez** que l'application fonctionne suite à ces changements.
 
 ### Sur la machine distante 
