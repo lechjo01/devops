@@ -1,183 +1,128 @@
 # TD 05 - Docker-compose
 
-![work in progress](/img/work-in-progress.jpeg)
+Vous avez maintenant acquis les bases de Docker et appris à écrire 
+des Dockerfile pour créer et exécuter des conteneurs. 
+Cette série d’exercices va vous permettre d’aller plus loin en explorant 
+des concepts essentiels pour le déploiement et l’orchestration 
+d’applications conteneurisées.
 
-Date de publication : 21 février 2025
+Vous commencerez par approfondir le comportement des conteneurs 
+avec la différence entre `ENTRYPOINT` et `CMD`, puis vous verrez comment 
+optimiser vos images Docker grâce au fichier `.dockerignore`. 
+Ensuite, vous apprendrez à gérer la mise à jour d’un conteneur 
+via un script d’automatisation.
 
-<!--
-Docker Compose est un outil utilisé pour définir et gérer 
-des applications multi-conteneurs dans un fichier YAML. 
-Il simplifie la gestion des conteneurs, réseaux et volumes en 
-unifiant leur configuration. 
-Ce TD est consacré à l'apprentissage de Docker Network et Docker Compose
-pour créer des applications multi-conteneurs.
+Une fois ces bases maîtrisées, vous aborderez *Docker Compose*, 
+un outil indispensable pour gérer plusieurs conteneurs. 
+Vous créerez des configurations *docker-compose.yml* pour orchestrer 
+une application Spring avec une base de données MySQL, puis avec un 
+*load balancer Nginx*. Enfin vous conclurez par une introduction aux microservices, 
+où Docker Compose sera utilisé pour déployer une architecture distribuée.
 
 ### Objectifs 
 
 À l’issue de ce TD, vous serez capable de :
 
-1. Utiliser un conteneur MySQL.
-1. Lier un conteneur MySQL à une application Spring Boot via Docker Network.
-1. Orchestrer le déploiement des conteneurs MySQL et 
-Spring Boot de manière simplifiée avec Docker Compose.l
-1. Déployer une image sur Docker Hub.
+1. Comprendre les mécanismes avancés de Docker.
+1. Optimiser les images et les conteneurs.
+1. Automatiser le cycle de vie des services.
+1. Orchestrer des applications complexes avec Docker Compose.
+
 
 :::warning Pré-requis
 
-1. Connaissance de base de Docker ses images et ses conteneurs.
 1. Connaissance de base en Spring Boot et des commandes shell.
-1. Un environnement de travail prêt avec Git, Java (JDK 17 minimum) et un IDE (VS Codium).
+1. Un environnement de travail prêt avec Git, Java (JDK 17 minimum),
+ un IDE (VS Codium) et Docker.
+1. Connaissance de base de Docker ses images et ses conteneurs.
 
 :::
 
-## Créer un conteneur Docker MySQL
+## Docker
 
-Lancez un conteneur MySQL en spécifiant un mot de passe 
-pour l'utilisateur root :
+Vous avez déjà appris à écrire des Dockerfile et à créer vos propres images Docker. 
+Dans cette section, vous allez approfondir certaines notions essentielles 
+qui n’ont pas encore été abordées.
 
-```
-docker run -d --name mysql-container -e MYSQL_ROOT_PASSWORD=rootpassword -e MYSQL_DATABASE=mydb -p 3306:3306 mysql:latest
-```
-
-- `-d` : Exécute le conteneur en arrière-plan.
-- `--name` : Attribue un nom au conteneur.
-- `-e MYSQL_ROOT_PASSWORD` : Définit le mot de passe pour l'utilisateur root.
-- `-e MYSQL_DATABASE` : Crée une base de données nommée mydb.
-- `-p 3306:3306` : Expose le port MySQL du conteneur sur l'hôte.
-
-## Un conteneur Spring Boot utilisant un conteneur MySQL
-
-Créez un réseau Docker pour permettre aux conteneurs de communiquer entre eux :
-
-```
-docker network create my-network
-```
-
-Connectez le conteneur MySQL au réseau :
-
-```
-docker network connect my-network mysql-container
-```
-
-Lancez l'application Spring Boot dans un conteneur et connectez-la au même réseau :
-
-```
-docker run -d --name springboot-app --network my-network -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-container:3306/mydb -e SPRING_DATASOURCE_USERNAME=root -e SPRING_DATASOURCE_PASSWORD=rootpassword -p 8080:8080 springboot-app-image
-```
-
-L'option `--network my-network` permet à l'application de se connecter au conteneur MySQL en utilisant son nom DNS (`mysql-container`).
-
-## Tester la communication entre les conteneurs
-
-Docker DNS permet aux conteneurs sur le même réseau de se résoudre par leur nom. Par exemple, dans le conteneur de l'application Web, l'application peut se connecter à MySQL avec l'adresse my_database.
-
-Pour voir les réseaux disponibles :
-
-```
-docker network ls
-```
-
-Pour inspecter les détails du réseau my_network :
-
-```
-docker network inspect my_network
-```
-
-Cela montre les conteneurs connectés et leurs adresses IP sur ce réseau.
+### ENTRYPOINT ou CMD
 
 
-Résumé des avantages
 
-- Isolation : Chaque réseau Docker est isolé des autres, ce qui renforce la sécurité.
-- Facilité de configuration : Pas besoin de configurer manuellement des adresses IP ou des règles de pare-feu.
-- DNS intégré : Les conteneurs peuvent se résoudre par leur nom, simplifiant la communication.
+### Optimiser la taille des images Docker
 
-Cet exemple montre comment utiliser Docker Network pour connecter des conteneurs et gérer leurs communications de manière claire et sécurisée.
+Vous avez vu comment `ENTRYPOINT` et `CMD` influencent le comportement 
+d'un conteneur au démarrage. Cependant, lorsqu'on construit une image 
+Docker, il est essentiel de ne pas inclure des fichiers inutiles pour 
+optimiser la taille et la sécurité. C'est là qu'intervient `.dockerignore`, 
+qui vous permet de contrôler ce que Docker copie dans l'image. 
+Voyons comment l'utiliser efficacement.
 
-## Simplifier avec Docker Compose
-
-Au lieu de créer chaque conteneur manuellement, utilisez un fichier docker-compose.yml pour définir les services.
-
-```yaml title="docker-compose.yml"
-version: '3.8'
-
-services:
-  mysql:
-    image: mysql:latest
-    container_name: mysql-container
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: mydb
-    networks:
-      - my-network
-    ports:
-      - "3306:3306"
-
-  springboot-app-1:
-    image: springboot-app-image
-    container_name: springboot-app
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mydb
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: rootpassword
-    networks:
-      - my-network
-    ports:
-      - "8080:8080"
-
-  springboot-app-2:
-    image: springboot-app-image
-    container_name: springboot-app-2
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mydb
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: rootpassword
-    networks:
-      - my-network
-    ports:
-      - "8081:8080"
-
-networks:
-  my-network:
-    driver: bridge
-```
-
-Lancer l'application avec Docker Compose
-
-```
-docker-compose up -d
-```
-Cela va :
-
-1. Créer un réseau my_network automatiquement.
-1. Lancer les conteneurs my_web_app et my_database.
-1. Associer ces conteneurs au réseau défini.
-1. Gérer les dépendances, s'assurant que db démarre avant web
-1. Déployer une image sur Docker Hub pour la rendre accessible publiquement.
+Exercice
 
 
-Lister les services en cours d'exécution :
+:::info Optimiser la taille des images Docker
 
-```
-docker-compose ps
-```
+A travers les exercices vous pouvez noter plusieurs techniques d'optimisation : 
 
-Arrêter et supprimer les conteneurs, réseaux et volumes :
+- Utiliser une image de base légère
+- Utiliser .dockerignore
+- Minimiser le nombre de couches (RUN en une seule commande)
+- Utiliser multi-stage builds
+- Nettoyer les dépendances temporaires
+- Éviter d’installer des outils inutiles
 
-```
-docker-compose down
-```
+:::
 
-En résumé, docker network est un outil de bas niveau pour gérer les connexions réseau, tandis que Docker Compose est un orchestrateur qui gère à la fois les connexions réseau, les dépendances entre services, les volumes, et plus encore.
 
-## Déployer une application sur le Docker Hub
+### Automatiser la mise à jour d’un conteneur
 
-Créez un compte sur Docker Hub en utilisant votre mail étudiant comme nom d'utilisateur.
+Grâce à *.dockerignore*, vous avez appris à alléger vos images 
+Docker en excluant les fichiers inutiles. Mais une fois votre 
+application empaquetée, vous devez pouvoir la mettre à jour proprement. 
+Voyons maintenant comment écrire un script permettant d'arrêter un conteneur, 
+le supprimer et le redémarrer avec une version plus récente.
 
-Ensuite dans un terminal, connectez vous à votre compte via la commande `docker login`. Une fois vos identifiants entrés, il suffit d'entrer la commande `docker push g12345/demo-spring-boot` pour déposer l'image sur votre compte Docker Hub.
+## Docker compose
 
-Consultez votre image via [https://hub.docker.com/r/g12345/demo-spring-boot/](https://hub.docker.com/r/g12345/demo-spring-boot/`).
+Gérer plusieurs conteneurs manuellement peut vite devenir complexe. 
+Docker Compose simplifie cette gestion en permettant de définir et orchestrer 
+plusieurs services dans un simple fichier YAML.
 
-Vous pouvez télécharger cette image sur n'importe quel environnement Docker via `docker pull g12345/demo-spring-boot`
+Dans cette section, nous commencerons par apprendre à manipuler la syntaxe YAML, a
+vant de voir comment déployer une application complète avec docker-compose.yml.
 
--->
+### Manipulation de YAML
+
+Avant de pouvoir tirer pleinement parti de Docker Compose, il est essentiel de maîtriser
+la syntaxe des fichiers YAML. 
+Une bonne compréhension de YAML vous permettra de structurer correctement vos fichiers 
+docker-compose.yml et d'éviter les erreurs courantes.
+
+
+
+### Déployer une application avec Docker Compose
+
+Vous savez maintenant comment gérer un conteneur individuellement. 
+Cependant, dans une application réelle, vous avez souvent plusieurs 
+services qui doivent fonctionner ensemble, comme une application Spring 
+et une base de données MySQL. Pour simplifier la gestion de ces services 
+interconnectés, vous allez utiliser *Docker Compose* et écrire un fichier 
+`docker-compose.yml` pour orchestrer notre environnement.
+
+
+### Gérer la charge avec Nginx
+
+Votre application Spring fonctionne désormais avec une base de données 
+MySQL grâce à Docker Compose. Mais dans un environnement réel, vous devez 
+souvent gérer la montée en charge en équilibrant le trafic entre plusieurs 
+instances de votre application. Pour cela, vous allez ajouter un *Load Balancer* 
+avec *Nginx* et adapter votre *docker-compose.yml* en conséquence.
+
+### Microservices et Docker Compose
+
+Jusqu'à présent, vous avez travaillé avec des applications monolithiques 
+ou des services simples. 
+Les microservices permettent de diviser une application en plusieurs services indépendants, chacun ayant son propre rôle.
+
+Vous allez voir comment Docker Compose facilite le déploiement et la gestion des microservices, en définissant plusieurs conteneurs interconnectés dans un seul fichier docker-compose.yml.
+
