@@ -274,7 +274,7 @@ database:
   password: "secret"
 ```
 
-:::note Exercice : YAML et erreurs courantes
+:::note Exercice 3 : YAML et erreurs courantes
 
 Trouvez les erreurs dans les fichiers YAML proposés ci-dessous.
 Pour vous aider vous pouvez vérifier que le fichier respecte 
@@ -380,35 +380,44 @@ volumes:
 Votre application Spring fonctionne désormais avec une base de données 
 MySQL grâce à Docker Compose. Mais dans un environnement réel, vous devez 
 souvent gérer la montée en charge en équilibrant le trafic entre plusieurs 
-instances de votre application. Pour cela, vous allez ajouter un *Load Balancer* 
-avec *Nginx* et adapter votre *docker-compose.yml* en conséquence.
+instances de votre application. Pour cela, vous allez ajouter un *Load Balancer* et adapter votre *docker-compose.yml* en conséquence.
 
+#### Découverte de NGINX
 
-#### Utiliser nginx comme serveur web
+:::note L'instant wikipedia
 
-:::note wikipedia
-
-NGINX est un logiciel libre de serveur Web (ou HTTP) ainsi qu'un proxy inverse écrit par Igor Sysoev, dont le développement a débuté en 2002. C'est depuis avril 2019, le serveur web le plus utilisé au monde d'après Netcraft, ou le deuxième serveur le plus utilisé d'après W3techs. 
+NGINX est un logiciel libre de serveur Web ainsi qu'un proxy inverse écrit par Igor Sysoev, dont le développement a débuté en 2002. C'est depuis avril 2019, le serveur web le plus utilisé au monde d'après Netcraft, ou le deuxième serveur le plus utilisé d'après W3techs. 
 
 :::
 
-Peut servir des pages HTML statiques
+Un serveur web est un logiciel qui :
+- Reçoit des requêtes HTTP/HTTPS.
+- Traite ces requêtes et envoie une réponse, par exemple sous forme de page web.
+- Peut héberger des fichiers statiques ou des applications dynamiques (PHP, Node.js, Java,...).
+
+Suivez les étapes ci-dessous pour comprendre comment configurer
+NGINX pour l'utiliser comme un serveur de pages statiques, 
+c'est à dire, comme un serveur web qui se contente d’envoyer des
+pages web tel quel sans traitement spécifique.
+
+Commencez par créer un dossier qui va contenir une page html que 
+le serveur doit retourner.
+
 
 ```yaml
 mkdir -p nginx-site/html
 cd nginx-site
 touch html/index.html
-touch nginx.conf
 ```
 
-Dans nginx-site/html/index.html, ajoutez :
+Ajoutez un contenu à la page `nginx-site/html/index.html`. Par exemple vous pouvez y écrire :
 
 ```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mon serveur Nginx pour leslabos de 4dop1dr</title>
+    <title>Laboratoires de l'unité 4DOP1DR</title>
 </head>
 <body>
     <h1>Bienvenue sur mon serveur Nginx avec Docker !</h1>
@@ -416,20 +425,36 @@ Dans nginx-site/html/index.html, ajoutez :
 </html>
 ```
 
-Lancer la commande
+Démarrez un conteneur NGINX utilisant les fichiers créés en
+ utilisant la commande suivante dans le dossier 
+`nginx-site`:  
 
 ```bash
 docker run -d --name nginx-site -p 8080:80 -v $(pwd)/html:/usr/share/nginx/html:ro nginx
 ```
 
-Dans un navigateur, allez sur http://localhost:8080 et vous devriez voir votre page personnalisée.
+Cette commande se décompose comme suit :
+- `docker run` : démarre un nouveau conteneur à partir d’une image.
+- `-d`: mode détaché, le conteneur tourne en arrière-plan.
+- `--name nginx-site` : donne un nom unique au conteneur.
+- `-p 8080:80`: redirige le port 8080 de la machine hote vers le port 80 du conteneur, port d'écoute par défaut de NGINX.
+- `$(pwd)` : pour *print working directory* retourne le chemin absolu du répertoire courant.
+- `-v $(pwd)/html:/usr/share/nginx/html:ro` : monte un volume pour lier le dossier local `$(pwd)/html` au dossier `/usr/share/nginx/html` du conteneur. Le dossier du conteneur est en lecture seule (`ro`) ce qui empêche toute modification des fichiers à l’intérieur du conteneur.
+- `nginx` : utilise l’image officielle de NGINX depuis Docker Hub.
 
-#### Utiliser nginx comme reverse proxy
+Si vous allez sur [http://localhost:8080](http://localhost:8080) dans un navigateur, vous 
+devriez voir apparaître le contenu de la page `nginx-site/html/index.html`.
 
+#### NGINX comme reverse proxy
 
-Agit comme un intermédiaire entre les clients et un serveur backend (ex : Node.js, Python, Java).
+Vous avez utilisé NGINX comme un serveur web pour servir une
+page statique. Mais NGINX ne se limite pas à cela. 
+C'est aussi un **reverse proxy**, capable de rediriger les 
+requêtes vers d’autres serveurs ou applications.
+Dans ce prochain exercice, vous allez transformer votre serveur
+NGINX en un tel reverse proxy.
 
-Sécurise les requêtes en masquant l’IP du backend.
+Commencez par créer un dossier qui va contenir le fichier de configuration du serveur NGINX.
 
 
 ```bash
@@ -438,7 +463,7 @@ cd nginx-proxy
 touch nginx.conf
 ```
 
-Dans nginx-proxy/nginx.conf, ajoutez :
+Dans le fichier de configuration `nginx-proxy/nginx.conf`, ajoutez :
 
 ```json
 events { }
@@ -451,33 +476,112 @@ http {
             proxy_pass https://he2b.be/;
         }
 
-        location /google {
-            proxy_pass https://www.google.be/;
+        location /documents {
+            proxy_pass https://sites.google.com/he2b.be/esi/documents;
         }
     }
 }
 ```
 
-Lancer la commande 
+Cette configuration peut être décomposée comme suit : 
+- `events { }` : Définit des paramètres liés
+aux connexions réseau, comme le nombre de connexions simultanées. Ce bloc est obligatoire dans un fichier de configuration NGINX, même si ici il est vide.
+- `http { }` : Configuration principale du serveur HTTP.
+- `server { }` : Déclare un serveur HTTP.
+- `listen 80;` : Le serveur écoute le port 80, port par défaut pour les requêtes HTTP. Toutes les requêtes reçues sur ce port seront gérées par ce serveur.
+- `location /he2b {proxy_pass https://he2b.be/;}` : Quand un utilisateur visite http://localhost/he2b NGINX redirige la requête vers https://he2b.be/, tout en conservant la partie restante de l’URL, par exemple visiter http://localhost:8080/he2b/etudiant redirige vers https://he2b.be/etudiant.
+
+Ce reverse proxy permet d’unifier plusieurs services sous un 
+même domaine. Il peut être amélioré avec l'ajout d'en-têtes HTTP pour mieux gérer la transmission des requêtes ou par l'ajout de la gestion des requêtes HTTPS. N'hésitez pas à consulter [la documentation pour approffondir les possibilités](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/).
+
+Démarrez votre reverse proxy via la commande :  
 
 ```bash
 docker run -d --name nginx-proxy -p 8081:80 -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro nginx
 ```
 
-Pour utiliser une application personnel
+:::note Exercice 5 : Decryptage d'une commande
 
+Ecrivez sur une feuille la signification de chaque paramètre de
+la commande afin de vous assurer de votre compréhenssion de 
+l'utilisation des conteneurs.
 
-```yaml
+:::
+
+#### NGINX avec une application personnelle
+
+Si vous souhaitez utiliser NGINX pour rediriger vers
+l'application conteneurisée demo-no-db, vous allez devoir
+demaander à Docker de créer un réseau pour que le
+conteneur NGINX et le conteneur Spring-Boot communique.
+
+Commencez par supprimer les conteneurs desserveurs NGINX et 
+de l'application demo-no-db. 
+
+Ensuite pour créer ce réseau il suffit d'utiliser la commande : 
+
+```bash
+docker network create my-network-test
+```
+
+L'étape suivante consiste à démarrer un conteneur utilisant l'image de l'application 
+`g12345/spring-demo-no-db` en la connectant à ce réseau grâce à
+l'option `--network` : 
+
+```bash
+docker run --rm --name no-db --network my-network-test -p 8082:8080 g12345/spring-demo-no-db
+```
+
+Modifiez la configuration du 
+reverse proxy pour que la route `demo-no-db` 
+redirige vers la route `/config` de l'appliction `demo-no-db`.
+
+```json title="nginx.conf"
+events { }
+
+http {
+    server {
+        listen 80;
+
+        location /he2b {
+            proxy_pass https://he2b.be/;
+        }
+
+        location /demo-no-db {
+            proxy_pass http://no-db:8080/config;
+        }
+    }
+}
+```
+
+Finalement démarrer un conteneur NGINX associé au réseau. prenez attention que cette commande s'exécute dans le dosier contenant le fichier `nginx.conf`.
+
+```bash
+docker run -d --name nginx-proxy --network my-network-test -p 8081:80 -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro nginx
+```
+
+Si vous consultez dans un brownser l'url `http://localhost:8081/demo-no-db` vous devriez recevoir les données du service rest.
+
+Supprimez les conteneurs créés avant de passer à l'étape suivante.
+
+#### Simplification grâce à Docker Compose
+
+Docker vous a permis de démarrer un conteneur pour votre application
+et un conteneur pour votre reverse proxy NGINX.
+Docker compose permet quant à lui de réaliser le démarrage de ces deux applications en **un seul fichier**
+`docker-compose.yml`.
+
+```yaml title="docker-compose.yml"
 version: '3.8'
 
 services:
   app:
-    build: ./app
-    container_name: spring-app
+    # Chemin vers le répertoire contenant le Dockerfile
+    build: ./
+    image: g12345/spring-demo-no-db
+    container_name: no-db
     ports:
-      - "8081:8081"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - "8082:8080"
     networks:
       - app-network
 
@@ -498,37 +602,53 @@ networks:
     driver: bridge
 ```
 
-#### Utiliser nginx comme load balancer
+Adaptez le nom des images ou des dossiers du fichier `docker-compose.yml` et essayez d'utiliser ce fichier avec la commade `docker-compose up --build`. Vous devriez pour consommer le service rest de l'application `demo-no-db` à l'adresse `http://localhost:8080/demo-no-db`.
 
-Distribue le trafic entre plusieurs serveurs backend pour éviter la surcharge.
+Consultez ensuite les conteneurs dispnibles via `docker ps -a`.
+Vous devriez y trouver les conteneurs concernant NGINX et demo-no-db. Utilisez la commande `docker-compose down` et consulter à nouveau la liste des conteneurs disponibles. Que constatez-vous ?
 
-```yaml
+#### NGINX comme load balancer
+
+Dans l'exercice précédent, vous avez configuré NGINX comme
+reverse proxy pour une application Spring Boot. 
+
+Cependant, lorsqu'une application reçoit un grand nombre de 
+requêtes, un seul serveur Spring Boot peut devenir un goulet 
+d'étranglement et ralentir les performances. 
+Pour y remédier, il est courant d'utiliser plusieurs instances 
+de l'application et de répartir la charge entre elles.
+
+Dans cet exercice, vous allez utiliser Docker Compose pour
+configurer NGINX en tant que Load Balancer. 
+L'objectif est de :
+- Lancer plusieurs instances de l'application Spring Boot dans des conteneurs Docker.
+- Configurer NGINX pour équilibrer la charge entre ces instances.
+- Vérifier que les requêtes sont distribuées entre les différentes instances.
+
+```yaml title="docker-compose.yml"
 version: '3.8'
 
 services:
   app1:
-    build: ./app
-    container_name: spring-app-1
+    build: ./
+    container_name: demo-no-db-1
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - SERVER_PORT=8081
     networks:
       - app-network
 
   app2:
-    build: ./app
-    container_name: spring-app-2
+    build: ./
+    container_name: demo-no-db-2
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - SERVER_PORT=8082
     networks:
       - app-network
 
   app3:
-    build: ./app
-    container_name: spring-app-3
+    build: ./
+    container_name: demo-no-db-3
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
       - SERVER_PORT=8083
     networks:
       - app-network
@@ -552,7 +672,7 @@ networks:
     driver: bridge
 ```
 
-Modifiez la configuration : 
+Modifiez le fichier de configuration du serveur NGINX : 
 
 
 ```json
@@ -568,24 +688,12 @@ http {
     server {
         listen 80;
 
-        location /api/ {
-            proxy_pass http://spring_backend/;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+        location /demo-no-db/ {
+            proxy_pass http://spring_backend/config;
         }
     }
 }
 ```
 
-Lancer plusieurs fois la commande `curl http://localhost:8080/config/`. Est-ce que le numéro de port est identique ?
-
-### Microservices et Docker Compose
-
-Jusqu'à présent, vous avez travaillé avec des applications monolithiques 
-ou des services simples. 
-Les microservices permettent de diviser une application en plusieurs services indépendants, chacun ayant son propre rôle.
-
-Vous allez voir comment Docker Compose facilite le déploiement et la gestion des microservices, en définissant plusieurs conteneurs interconnectés dans un seul fichier docker-compose.yml.
+Lancer plusieurs fois la commande `curl http://localhost:8080/config/`. Est-ce que le résultat est identique ?
 
