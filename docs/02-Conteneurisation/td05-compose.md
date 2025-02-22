@@ -444,6 +444,34 @@ volumes:
 Adaptez le nom des images ou des dossiers du fichier `docker-compose.yml` et essayez d'utiliser ce fichier avec la commade `docker-compose up`. Vous devriez pour consommer le service rest de l'application demo à l'adresse [localhost:8080/config](localhost:8080/config).
 
 
+:::note Détails du docker-compose.yml
+
+Le fichier docker-compose.yml est décomposé en :
+
+- Un service app représetnant le conteneur de l'application Spring Boot : 
+  - Construit l'image à partir du dossier ./demo.
+  - Intitule le conteneur spring-app.
+  - Dépend du conteneur intitulé db.
+  - Définit les variables d’environnement pour la connexion MySQL.
+  - Expose le port 8080.
+  - Se connecte au réseau app-network.
+
+- Un service db représetnant la Base de données MySQL
+  - Utilise l’image mysql:9.2.0.
+  - Intitule le conteneur mysql-db.
+  - Redémarre automatiquement en cas d'arrêt.
+  - Configure une base de données mydatabase avec un utilisateur myuser.
+  - Expose le port 3306.
+  - Stocke les données MySQL dans un volume db-data.
+  - Healthcheck : Vérifie que MySQL est prêt avant que l'application ne démarre.
+
+- Une configuration générale
+  - Un réseau app-network : Permet la communication entre les conteneurs app et db.
+  - Un volume db-data : Évite la perte des données MySQL après l'arrêt des conteneurs.
+
+:::
+
+
 ### Gérer la charge avec Nginx
 
 Votre application Spring fonctionne désormais avec une base de données 
