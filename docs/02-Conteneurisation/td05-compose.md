@@ -312,46 +312,108 @@ message: This is a test # with a comment caracter
 ```
 :::
 
-### Déployer une application avec Docker Compose
+### Docker network
 
-#### Dockerfile pour une application avec base de données
-
-Ecrire le Dockerfile permettant de
+Ecrivez le Dockerfile permettant de
 lancer l'application Spring-boot demo via la 
 commande
 
 ```bash
-docker run -d -e 
-spring.datasource.url=jdbc:mysql://db:3306/mydatabase?useSSL=false&allowPublicKeyRetrieval=true
-spring.datasource.username=root
-spring.datasource.password=rootpassword
-spring.jpa.hibernate.ddl-auto=update
-spring.sql.init.mode=always
-... spring-demo
+docker run --rm \
+  --name spring-boot-app \
+  -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb \
+  -e SPRING_DATASOURCE_USERNAME=sa \
+  -e SPRING_DATASOURCE_PASSWORD= \
+  -e SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true \
+  g12345/spring-demo
 ```
 
-#### Ecriture du docker-compose.yml
-```yaml
-version: '3.8'
+Une fois l'image fonctionnelle, vous pouvez l'utiliser non pas
+pour utiliser la base de données H2 mais une base de données
+MySql démarée à l'aide d'un conteneur.
 
+Pour ce faire vous aller devoir suivre les étapes suivantes : 
+- créer un réseau de communication entre les conteneurs
+MySql et Spring-boot
+- créer un conteneur MySql associé à ce réseau
+- créer un conteneur Spring-boot associé à ce réseau avec les
+variables d'environnements correspondants à la base de données
+MySql
+
+Pour créer ce réseau il suffit d'utiliser la commande :
+
+```bash
+docker network create my-network-db
+```
+
+L'étape suivante consiste à démarrer un conteneur utilisant
+l'image MySql, comme dans le td précédent, en le connectant à ce réseau grâce à l'option `--network` :
+
+```bash
+docker run -d \
+  --name mysql-container \
+  --network my-network-db \
+  -e MYSQL_USER=g12345 \
+  -e MYSQL_PASSWORD=secret \
+  -e MYSQL_ROOT_PASSWORD=secret \
+  -e MYSQL_DATABASE=mydatabase \
+  -p 3306:3306 \
+  mysql:9.2.0
+```
+
+Vérifiez que la base de données MySql a terminé de démarrer avant
+de passer à la suite en consultant les logs du conteneur.
+
+Finalement, dès que la base de données est opérationnelle,
+vous devez démarrer le conteneur de l'application
+Spring-Boot avec ses variables d'environnement via la commande : 
+
+```bash
+docker run --rm \
+  --name spring-demo-app \
+  --network my-network-db \
+  -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-container:3306/mydatabase \
+  -e SPRING_DATASOURCE_USERNAME=g12345 \
+  -e SPRING_DATASOURCE_PASSWORD=secret \
+  -e SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true \
+  -e SPRING_JPA_HIBERNATE_DDL_AUTO=create \
+  -e SPRING_SQL_INIT_MODE=always \
+  g12345/spring-demo
+```
+
+Consommez le service rest à l'adresse [localhost:8080/config](localhost:8080/config) pour vérifier que votre configuration
+fonctionne. 
+
+Si vous obtenez le résultat attendu, supprimez les conteneurs créés avant de passer à l'étape suivante.
+
+### Ecriture du docker-compose.yml
+
+Docker vous a permis de démarrer un conteneur pour votre application et un conteneur pour votre base de données MySql. Docker compose permet quant à lui de réaliser le démarrage de ces deux applications en un seul fichier docker-compose.yml.
+
+
+```yaml
 services:
   app:
-    build: ./app
+    build: ./demo
     container_name: spring-app
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/mydatabase?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/mydatabase
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootpassword
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true
+      - SPRING_SQL_INIT_MODE=always
     ports:
       - "8080:8080"
     networks:
       - app-network
 
   db:
-    image: mysql:8.0
+    image: mysql:9.2.0
     container_name: mysql-db
     restart: always
     environment:
@@ -365,6 +427,11 @@ services:
       - db-data:/var/lib/mysql
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      retries: 10
+      interval: 3s
+      timeout: 30s
 
 networks:
   app-network:
@@ -373,6 +440,8 @@ networks:
 volumes:
   db-data:
 ```
+
+Adaptez le nom des images ou des dossiers du fichier `docker-compose.yml` et essayez d'utiliser ce fichier avec la commade `docker-compose up`. Vous devriez pour consommer le service rest de l'application demo à l'adresse [localhost:8080/config](localhost:8080/config).
 
 
 ### Gérer la charge avec Nginx
@@ -572,8 +641,6 @@ Docker compose permet quant à lui de réaliser le démarrage de ces deux applic
 `docker-compose.yml`.
 
 ```yaml title="docker-compose.yml"
-version: '3.8'
-
 services:
   app:
     # Chemin vers le répertoire contenant le Dockerfile
@@ -626,8 +693,6 @@ L'objectif est de :
 - Vérifier que les requêtes sont distribuées entre les différentes instances.
 
 ```yaml title="docker-compose.yml"
-version: '3.8'
-
 services:
   app1:
     build: ./
