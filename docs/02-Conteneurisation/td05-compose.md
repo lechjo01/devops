@@ -39,27 +39,26 @@ où Docker Compose sera utilisé pour déployer une architecture distribuée.
 :::
 
 ## Docker
-
-Vous avez déjà appris à écrire des Dockerfile et à créer vos propres images Docker. 
+ 
 Dans cette section, vous allez approfondir certaines notions essentielles 
-qui n’ont pas encore été abordées.
+qui n’ont pas encore été abordées concernant Docker.
 
 ### ENTRYPOINT ou CMD
 
 Lorsque vous utilisez des Dockerfiles, vous constatez
 que deux instrutions assez proches sont utilisées pour 
-demander d'exécutez une action au démarage du conteneur
+demander d'exécutez une action au démarage du conteneur :
 `CMD` et `ENTRYPOINT`.
 
 Afin d'y voir plus clair dans la distinction entre ces 
-deux directives, créez un Dockerfile à partir d'une image alpine
+deux directives, créez un Dockerfile à partir d'une image alpine.
 
 
 ```Dockerfile title="Dockerfile"
 FROM alpine:latest
 ```
 
-Créez l'image associée à ce Dockerfile
+Ensuite créez l'image associée à ce Dockerfile via la commande : 
 
 ```bash
 docker build -t test-no-entrypoint-no-cmd .
@@ -76,13 +75,14 @@ docker build -f <NOM_DOCKERFILE> -t test-no-entrypoint-no-cmd .
 
 :::
 
-Démarrez un conteneur basé sur cette image via la commande : 
+Enfin démarrez un conteneur basé sur cette image via la commande : 
 
 ```bash
 docker run test-no-entrypoint-no-cmd
 ```
 
-Le conteneur démarre et aucune action en semble avoir été exécutée. Inspectez la configuraion de l'image et **cherchez** la valeur des directives CMD et Entrypoint de ce conteneur.
+Le conteneur démarre et aucune action ne semble avoir été exécutée. Inspectez la configuraion de l'image et **cherchez** la valeur des directives CMD et Entrypoint de ce conteneur
+dans le résultat de la commande :
 
 ```bash
 docker inspect test-no-entrypoint-no-cmd
@@ -98,7 +98,7 @@ Avant de passer à la suite, effacez ce conteneur de test, en utilisant la comma
 
 :::tip
 
-Lorsque vous démarrez des conteneurs temporaires, vous pouvez les effacer automatiquement arès leur exécution en utilisant le flag `-rm` comme ci-dessous
+Lorsque vous démarrez des conteneurs temporaires, vous pouvez les effacer automatiquement après leur exécution en utilisant le flag `-rm` comme ci-dessous.
 
 ```bash
 docker run --rm test-no-entrypoint-no-cmd
@@ -106,7 +106,7 @@ docker run --rm test-no-entrypoint-no-cmd
 
 :::
 
-Modifiez votre Dockerfile et créez une image écrasan la directive **CMD** : 
+Modifiez votre Dockerfile et créez une image écrasant la directive **CMD** : 
 
 
 ```Dockerfile title="Dockerfile"
@@ -123,14 +123,14 @@ La commande `docker run` effectue :
 - l'execution de la commande `/bin/echo "Hello, World!"` dans alpine.
 - dès que la commande `/bin/echo` s'arrête le conteneur s'arrête.
 
-Si vous essayer de démarrer le même conteneur en passant
-un argument, une erreur apparait.
+Si vous essayez de démarrer le même conteneur en passant
+un argument comme dans la commande suivante, une erreur apparait.
 
 ```bash
 docker run --rm test-no-entrypoint-no-cmd "Bonjout tout le monde"
 ```
 
-Il semble impossible de pouvoir passer un argument à docker run avec cette image.
+Il semble impossible de pouvoir passer un argument à `docker run` avec cette image.
 
 Effacez votre conteneur et modifiez votre Dockerfile pour
 ajouter la direcive **ENTRYPOINT** ajoutant la possibilité de gérer des arguments.
@@ -143,7 +143,7 @@ ENTRYPOINT ["echo"]
 CMD ["Hello, World!"]
 ```
 
-Construisez l'image `test-entrypoint-cmd`, démarrez
+Construisez l'image `test-entrypoint-cmd` et démarrez
 un conteneur pour tester cette image.
 Vous constatez que "Hello, World!" s'affiche dans
 le terminal.
@@ -151,17 +151,13 @@ le terminal.
 Si vous essayez à nouveau de passer un argument, vous constaterez que la valeur donnée à la directive **CMD**
 a été écrasée.
 
-```bash
-docker run --rm test-entrypoint-cmd "Bonjout tout le monde"
-```
-
 :::note ENTRYPOINT ou CMD
 **ENTRYPOINT** est utilisé pour définir un programme 
 principal qui **s'exécutera toujours**, même si des 
 arguments sont passés.
 **CMD** définit des **arguments par défaut** pour ENTRYPOINT, 
-mais peut être remplacé si des arguments sont fournis au 
-docker run.
+mais peut être remplacé si des arguments sont fournis à la 
+commande `docker run`.
 :::
 
 Un tableau récapitulatif est disponible sur la [documentation des directives de docker](https://docs.docker.com/reference/dockerfile/#understand-how-cmd-and-entrypoint-interact).
@@ -204,33 +200,30 @@ venv/
 
 ```
 
-La commande `docker build` exluera les fichiers et dossiers mentionnés dans le ``.dockerignore``.
+La commande `docker build` excluera les fichiers et dossiers mentionnés dans le ``.dockerignore``.
 
 :::note Exercice 1 : Exclure application.properties
 
-Comme le fichier `application.properties` peut
+Dans une application Spring-boot le fichier `application.properties` peut
 contenir des données sensibles tel que le mot de passe
-de la base de données, excluez le de l'image construite à
-partir de l'application spring-boot `demo-no-db` créée
+de la base de données. Excluez ce fichier de l'image construite à
+partir de l'application `demo-no-db` créée
 dans le td précédent.
 
-Comment allez-vous vérifiez que ce fichier est bien 
+Comment allez-vous vérifier que ce fichier est bien 
 absent des conteneurs générés à partir de cette image ? 
 
 :::
 
 
-:::info Optimiser la taille des images Docker
+:::tip Afin d'optimiser la taille des images Docker
 
-A travers les exercices des tds précédents et les
-exposés du cous théorique, vous pouvez retenir plusieurs techniques d'optimisation : 
-
-- Utiliser une image de base légère (`FROM ... -alpine`).
-- Utiliser `.dockerignore`.
-- Minimiser le nombre de couches (`RUN` en une seule commande).
-- Utiliser le principe du **multi-stage builds**.
-- Nettoyer les dépendances temporaires.
-- Éviter d’installer des outils inutiles.
+- Utilisez une image de base légère (`FROM ... -alpine`).
+- Utilisez un `.dockerignore`.
+- Minimisez le nombre de couches (`RUN` en une seule commande).
+- Utilisez le principe du **multi-stage builds**.
+- Nettoyez les dépendances temporaires.
+- Évitez d’installer des outils inutiles.
 
 :::
 
