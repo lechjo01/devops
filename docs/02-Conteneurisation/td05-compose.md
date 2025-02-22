@@ -227,10 +227,16 @@ absent des conteneurs générés à partir de cette image ?
 
 :::
 
+:::note Exercice 2 : Gestion des privillèges
+
+Modifiez le Dockerfile de l'application demo-no-db en créant un utilisateur sans les privilèges root comme conseillé à la fin du td précédent.
+
+:::
+
 ## Docker compose
 
 Gérer plusieurs conteneurs manuellement peut vite devenir complexe. 
-Docker Compose simplifie cette gestion en permettant de définir et orchestrer 
+Docker Compose simplifie cette gestion en permettant de définir et d'orchestrer 
 plusieurs services dans un simple fichier YAML.
 
 ### Manipulation de YAML
@@ -240,10 +246,9 @@ la syntaxe des fichiers YAML.
 Une bonne compréhension de YAML vous permettra de structurer correctement vos fichiers 
 `docker-compose.yml` et d'éviter les erreurs courantes.
 
-Un fichier YAML (Yet Another Markup Language) est un format de 
-données utilisé pour stocker et échanger des informations 
-structurées. Les données sont représentées sous forme de paires
-`clé: valeur`. Ce format utilise **uniquement** les espaces pour l’indentation.
+Le YAML est un format de données utilisé pour stocker et échanger des informations structurées. 
+Les données sont représentées sous forme de paires
+`clé: valeur`. Ce format utilise **uniquement** les **espaces** pour l’indentation.
 
 ```yaml title="config.yml"
 # Configuration de l'application
@@ -297,16 +302,10 @@ users:
 #### Exemple 3
 
 ```yaml
-url: http://example.com/path:80
-```
-
-#### Exemple 4
-
-```yaml
 description: This is a test: with a colon
 ```
 
-#### Exemple 5
+#### Exemple 4
 
 ```yaml
 message: This is a test # with a comment caracter
