@@ -93,7 +93,7 @@ Ce qui signifie que la commande `docker run` :
 - effectue l'execution de la commande `/bin/sh` dans alpine.
 - arrête le conteneur dès que la commande `/bin/sh` s'arrête.
 
-Avant de passer à la suite, effacez ce conteneur de test, en utilisant la commande `docker rm test-no-entrypoint-no-cmd`.
+Avant de passer à la suite, effacez ce conteneur de test.
 
 :::tip
 
@@ -128,7 +128,7 @@ Si vous essayez de démarrer le même conteneur en passant
 un argument comme dans la commande suivante, une erreur apparait.
 
 ```bash
-docker run --rm test-no-entrypoint-no-cmd "Bonjout tout le monde"
+docker run --rm test-no-entrypoint-cmd "Bonjout tout le monde"
 ```
 
 Il semble impossible de pouvoir passer un argument à `docker run` avec cette image.
