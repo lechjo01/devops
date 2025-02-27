@@ -460,7 +460,7 @@ docker run -v <chemin_hôte>:<chemin_conteneur> <image>
 1. Créez un dossier intitulé `mysql_data`.
 1. Lancez un conteneur MySQL en utilisant comme volume le dossier hôte `mysql_data`
 et le dossier du conteneur `/var/lib/mysql`. 
-1. Vérifiez que le dossier `mysql_data` n'est pas vide.
+1. Vérifiez que le dossier `mysql_data` n'est pas vide. Si ce dossier est vide, pensez à utiliser le **chemin absolu** du dossier hôte `mysql_data`.
 1. Créez une table `person` dans la base de données.
 1. Insérez des données dans cette table.
 1. Vérifiez les données insérées en affichant le contenu de la table person.
