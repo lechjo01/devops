@@ -590,7 +590,7 @@ Un serveur web est un logiciel qui :
 Suivez les étapes ci-dessous pour comprendre comment configurer
 NGINX pour l'utiliser comme un serveur de pages statiques, 
 c'est à dire, comme un serveur web qui se contente d'envoyer des
-pages web tel quel sans traitement spécifique.
+pages web telles quelles sans traitement spécifique.
 
 Commencez par créer un dossier qui va contenir une page html que 
 le serveur doit retourner.
@@ -677,11 +677,11 @@ http {
 
 Cette configuration peut être décomposée comme suit : 
 - `events { }` : Définit des paramètres liés
-aux connexions réseau, comme le nombre de connexions simultanées. Ce bloc est obligatoire dans un fichier de configuration NGINX, même si ici il est vide.
+aux connexions réseau, comme le nombre de connexions simultanées. Ce bloc est obligatoire dans un fichier de configuration NGINX, même si, comme ici, il est vide.
 - `http { }` : Configuration principale du serveur HTTP.
 - `server { }` : Déclare un serveur HTTP.
 - `listen 80;` : Le serveur écoute le port 80, port par défaut pour les requêtes HTTP. Toutes les requêtes reçues sur ce port seront gérées par ce serveur.
-- `location /he2b {proxy_pass https://he2b.be/;}` : Quand un utilisateur visite http://localhost/he2b NGINX redirige la requête vers https://he2b.be/, tout en conservant la partie restante de l'URL, par exemple visiter http://localhost:8080/he2b/etudiant redirige vers https://he2b.be/etudiant.
+- `location /he2b {proxy_pass https://he2b.be/;}` : Quand un utilisateur visite http://localhost/he2b, NGINX redirige la requête vers https://he2b.be/, tout en conservant la partie restante de l'URL, par exemple visiter http://localhost:8080/he2b/etudiant redirige vers https://he2b.be/etudiant.
 
 Ce reverse proxy permet d'unifier plusieurs services sous un 
 même domaine. Il peut être amélioré avec l'ajout d'en-têtes HTTP pour mieux gérer la transmission des requêtes ou par l'ajout de la gestion des requêtes HTTPS. N'hésitez pas à consulter [la documentation pour approffondir les possibilités](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/).
@@ -691,6 +691,8 @@ Démarrez votre reverse proxy via la commande :
 ```bash
 docker run -d --name nginx-proxy -p 8081:80 -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro nginx
 ```
+
+Testez que vous avez bien accès aux pages (attention au numéro de port !).
 
 :::note Exercice 5 : Decryptage d'une commande
 
