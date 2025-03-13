@@ -87,7 +87,7 @@ dans le résultat de la commande :
 docker inspect test-no-entrypoint-no-cmd
 ```
 
-Vous devez constater via cette inspection que la valeur de la direcive **CMD** est `/bin/sh`.
+Vous devez constater via cette inspection que la valeur de la directive **CMD** est `/bin/sh`.
 Ce qui signifie que la commande `docker run` : 
 - effectue la création du conteneur à partir de alpine.
 - effectue l'execution de la commande `/bin/sh` dans alpine.
