@@ -762,8 +762,10 @@ Commencez par créer un projet Python appelé `contact_manager` dont voici la st
 ```sh
 contact_manager/
 ├── src/
+│   └── __init__.py
 │   └── contacts.py
 ├── tests/
+│   └── __init__.py
 │   └── test_contacts.py
 └── sonar-project.properties
 ```
