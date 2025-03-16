@@ -621,6 +621,39 @@ class ComplexMethodTest {
 }
 ```
 
+Exécutez les tests unitaires via la commande maven suivante afin de vérifier 
+que vos modifications sont prises en compte : 
+
+```sh
+mvn clean test
+```
+
+:::tip plugin surefire
+
+Surefire est un plugin Maven utilisé pour exécuter les tests unitaires d’un projet. 
+Il fait partie du cycle de vie Maven et est généralement utilisé avec JUnit.
+Il exécute automatiquement les tests situés dans le dossier *src/test/java*.
+
+Si les tests unitaires ne s'exécutent pas lors de l'exécution de la commande 
+`mvn test`, il se peut que le plugin *maven-surefire-plugin* ne soit pas correctement 
+configuré dans votre environnement. 
+Dans ce cas, ajoutez explicitement le plugin suivant dans le fichier pom.xml, 
+dans la section `<plugins>` de la construction du projet :
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.2.5</version>
+        </plugin>
+    </plugins>
+</build>
+```
+
+:::
+
 Il est important de noter que SonarQube ne calcule pas la couverture de 
 code lui-même. Cette tâche est confiée à un outil externe spécifique au 
 langage du projet. Cet outil génère un rapport qui est ensuite envoyé à 
@@ -629,7 +662,8 @@ Pour le projet `quality-demo`, il est nécessaire d'utiliser
 **Java Code Coverage**. 
 La génération du rapport de couverture requiert l'ajout des commandes 
 que **JaCoCo** doit utiliser lors de la phase de **build** du projet. 
-Modifiez le fichier `pom.xml` en y ajoutant la section `build` suivante :
+Modifiez le fichier `pom.xml` en y ajoutant ou modifiant les plugins de 
+la section `build` comme ci-dessous :
 
 ```xml title="pom.xml" showLineNumbers
 <build>
@@ -662,7 +696,7 @@ Modifiez le fichier `pom.xml` en y ajoutant la section `build` suivante :
 Générez le rapport de couverture de test en utilisant la commande suivante :
 
 ```sh
-mvn clean test jacoco:report
+mvn jacoco:report
 ```
 
 Vérifiez que le rapport `jacoco.xml` est généré dans le dossier `target/site/jacoco`. Une version consultable est également générée via le fichier `index.html`.
