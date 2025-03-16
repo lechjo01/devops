@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # TD 06 - Vérifier avec Sonarqube
 
 SonarQube est une plateforme d’analyse de la qualité du code qui permet 
@@ -769,6 +772,60 @@ contact_manager/
 │   └── test_contacts.py
 └── sonar-project.properties
 ```
+
+:::tip environnement virtuel
+
+Un [environnement virtuel en Python](https://docs.python.org/3/tutorial/venv.html) 
+est un espace isolé qui permet d’installer 
+des bibliothèques sans affecter le système global ni les autres projets.
+
+La commande ci-dessous crée cet environnement isolé avec une copie minimale de Python.
+
+```sh
+python -m venv venv
+```
+
+Après la création de l’environnement virtuel, il est nécessaire de l’activer 
+avant d’installer des paquets avec *pip*.
+
+<Tabs groupId="operating-systems">
+  <TabItem value="Linux/macOS" label="Linux/macOS">
+
+    ```sh
+    source venv/bin/activate
+    ```
+
+  </TabItem>
+  <TabItem value="win" label="Windows-cmd">
+
+    ```sh
+    venv\Scripts\activate
+    ```
+
+  </TabItem>
+  <TabItem value="powershell" label="Windows-Powershell">
+
+    ```sh
+    venv\Scripts\Activate.ps1
+    ```
+
+  </TabItem>
+</Tabs>
+
+Une fois activé, vous verrez généralement le nom de l’environnement (*venv*) 
+apparaître au début de la ligne de commande, indiquant que vous travaillez 
+bien dans l’environnement isolé.
+
+*pip* est le gestionnaire de paquets officiel pour Python, utilisé pour installer, 
+mettre à jour et gérer des bibliothèques ou modules Python.
+
+Vérifiez que *pip* est disponible dans votre environnement avant de passer à la suite :
+
+```sh
+pip --version
+```
+
+:::
 
 Dans le dossier `src` créez le fichier `contacts.py` avec le code ci-dessous : 
 
