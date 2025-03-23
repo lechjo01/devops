@@ -3,22 +3,20 @@ import TabItem from '@theme/TabItem';
 
 # TD 07 - Gitlab CI/CD
 
-GitLab CI/CD (Continuous Integration / Continuous Deployment) est un outil puissant qui permet d'automatiser le processus de développement logiciel, du test au déploiement. Il repose sur des pipelines, composés de jobs s'exécutant dans des stages, afin de garantir la qualité et la rapidité des livraisons.
+GitLab CI/CD (Continuous Integration / Continuous Deployment) est un outil puissant qui permet d'automatiser le processus de développement logiciel, du test au déploiement. Il repose sur des **pipelines**, composés de **jobs** s'exécutant dans des **stages**.
 
 Dans cette série d'exercices, vous apprendrez à configurer un pipeline GitLab CI/CD, à automatiser les tests et à déployer des applications de manière efficace. 
 
 
 ### Objectifs 
 
-À l’issue de ce TD, vous serez capable d' :
-
-- déployer une application sur Alwaysdata
+À l’issue de ce TD, vous serez capable déployer une application sur Alwaysdata en utilisant un pipeline GitLab CI/CD.
 
 :::warning Pré-requis
 
 1. Connaissance de base en Java, Python, Docker et des commandes shell.
-1. Un environnement de travail prêt avec Java (JDK 17 minimum), Python 3.8+ et un IDE.
-1. Notions de base sur Git et GitLab
+1. Un environnement de travail prêt avec Java (JDK 17 minimum), Python 3.8+, Docker Engine et un IDE.
+1. Notions de base sur Git, GitLab et SonarQube.
 1. Bases sur les fichiers YAML
 
 :::
@@ -196,33 +194,35 @@ la commande `register` du conteneur `gitlab-runner` :
 
 ```sh
 docker run --rm \
-  -v /srv/gitlab-runner/config:/etc/gitlab-runner gitlab/gitlab-runner register \
-  --non-interactive \
-  --url "https://git.esi-bru.be" \
-  --token "$RUNNER_TOKEN" \
-  --executor "docker" \
-  --docker-image alpine:latest \
-  --description "docker-runner"
+  -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+  gitlab/gitlab-runner register \
+    --non-interactive \
+    --url "https://git.esi-bru.be" \
+    --token "$RUNNER_TOKEN" \
+    --executor "docker" \
+    --docker-image alpine:latest \
+    --description "docker-runner"
 ```
 
  </TabItem>
-  <TabItem value="win" label="Windows/macOS">
+  <TabItem value="win" label="Windows">
 
 ```sh
 docker run --rm ^
--v chemin_absolu_vers_la_configuration\gitlab-runner\config:/etc/gitlab-runner gitlab/gitlab-runner register  ^
---non-interactive ^
---url "https://git.esi-bru.be" ^
---token "$RUNNER_TOKEN" 
---executor "docker" ^
---docker-image alpine:latest ^
---description "docker-runner"
+  -v chemin_absolu_vers_la_configuration\gitlab-runner\config:/etc/gitlab-runner ^
+  gitlab/gitlab-runner register ^
+    --non-interactive ^
+    --url "https://git.esi-bru.be" ^
+    --token "$RUNNER_TOKEN" 
+    --executor "docker" ^
+    --docker-image alpine:latest ^
+    --description "docker-runner"
 ```
 
   </TabItem>
 </Tabs>
 
-:::note Exercice A
+:::note Exercice A : Interpréter la commande docker run
 
 Associez les descriptions ci-dessous aux différents paramètres de 
 la commande précédente (`--non-interactive`, `--url "https://git.esi-bru.be"`, ... ) : 
@@ -236,7 +236,7 @@ la commande précédente (`--non-interactive`, `--url "https://git.esi-bru.be"`,
 
 :::
 
-Pour valider le succès de l'enregistrement, consultez la liste des runners de votre projet sur le serveur GitLab via le menu 
+**Pour valider le succès de l'enregistrement**, consultez la liste des runners de votre projet sur le serveur GitLab via le menu 
 *Settings > CI/CD*.
 
 ## Premier script
@@ -265,15 +265,16 @@ Ce fichier définit un pipeline GitLab CI/CD avec un seul job nommé
 
 Déposez ce fichier sur le dépôt, via les étapes `git add .`,
 `git commit -m "Premier pipeline"` et `git push`. 
+
 Lorsqu'un commit est poussé dans le dépôt, GitLab CI/CD détecte le 
-fichier `.gitlab-ci.yml`. Il crée un pipeline et exécute le job 
-`my_first_job`. Le runner associé exécute le script qui affiche le
-message dans les logs. Le job se termine avec le statut *Success*, 
-sauf en cas d'erreur.
+fichier `.gitlab-ci.yml`. Il crée alors un pipeline et exécute le 
+job `my_first_job`. Le runner associé exécute le script qui 
+affiche le message dans les logs. Le job se termine avec le statut 
+*Success*, sauf en cas d'erreur.
 
 Pour vérifier l'exécution du job, consultez sur la page de votre 
 projet sur le serveur GitLab, le menu **Build > Jobs**.
-Cliquez ensuite sur le nom du job, par exemple 
+Cliquez ensuite sur le nom du job, ressemblant à 
 `#7562: my_first_job`,  afin de lire les logs de l'exécution. 
 Cherchez dans ces logs le résultat de l'instruction 
 `echo "Hello World!"`.
@@ -316,7 +317,7 @@ lorsqu’elle apparaît dans les logs des jobs ou dans l’interface.
 **Cette option est particulièrement utile pour protéger des informations sensibles** (comme des mots de passe, des clés API ou 
 des tokens).
 
-:::note Exercice B
+:::note Exercice B : Créer une variable
 
 Créez la variable MY_VARIABLE avec la valeur 42
 via l’interface GitLab. Vérifiez la création de la
@@ -375,7 +376,7 @@ On trouve par exemple CI_COMMIT_AUTHOR contenant l'auteur du commit
 ou encore CI_COMMIT_BRANCH contenant la branche sur laquelle le commit a été effectué.
 Vous pouvez consulter la [liste des variables prédéfinies](https://docs.gitlab.com/ci/variables/predefined_variables/).
 
-:::note Exercice C
+:::note Exercice C : Utiliser des variables prédéfinies
 
 Modifiez votre pipeline pour afficher les informations suivantes :
 - Url du Projet
@@ -389,10 +390,11 @@ Vérifiez le résultat de l'exécution de votre pipeline.
 
 ### Execution failed
 
-Dans cet section vous allez créer un pipeline qui est obligé de se
-terminer en échec afin réaliser comment GitLab vous informe d'un échec.
+Dans cette section vous allez créer un pipeline qui va se
+terminer en échec afin d'expérimenter comment GitLab vous informe 
+d'une erreur.
 
-:::note Exercice D
+:::note Exercice D : Déterminer le statut d'un job
 
 Modifiez votre pipeline en demandant au job d'afficher la
 version de maven utilisable dans le runner.
@@ -403,7 +405,7 @@ my_first_job:
     - mvn --version
 ```
 
-Maven n'étant pas installer dans l'image de votre runner, vérifiez 
+Maven n'étant pas installé dans l'image de votre runner, vérifiez 
 que le statut de votre job est **failed** via le menu **Build > Jobs**
 
 Cherchez dans les logs la cause de l'erreur.
@@ -412,12 +414,10 @@ Cherchez dans les logs la cause de l'erreur.
 
 ### Before et after script
 
-Si vous souhaitez exécutez une action avant ou après l'exécution 
+Si vous souhaitez exécuter une action avant ou après l'exécution 
 des instructions contenues dans la partie script d'un job, vous 
-pouvez ajouter les sections `before_script` et `after_script`.
-Afin de corriger votre pipeline, il faut installer maven
-dans votre runner. Pour ce faire vous pouvez utiliser 
-la directive `before_script` dans le job : 
+pouvez ajouter les sections `before_script` et `after_script` comme
+dans l'exemple suivant : 
 
 ```yaml title="gitlab-ci.yml" showLineNumbers
 my_first_job:
@@ -433,10 +433,11 @@ my_first_job:
     - echo "Fin du job."
 ```
 
-:::note Exercice D
+:::note Exercice D : Installer Maven
 
-Modifiez votre pipeline pour installer maven dans votre runner
-avant le début job.
+Afin de corriger le pipeline précédent, il faut installer maven
+dans votre runner. Modifiez ce pipeline pour installer maven via
+la directive `before_script`.
 
 :::
 
@@ -464,156 +465,391 @@ my_first_job:
 
 ### Stages et dépendances
 
-```yaml title="gitlab-ci.yml" showLineNumbers
-stages:
-  - test
-  - build
+Dans un fichier `.gitlab-ci.yml`, la directive `stages` permet de 
+définir les différentes étapes du pipeline. L'exécution de ces 
+étapes est séquentielle, 
+**tous les jobs d'un stage doivent être terminés avec succès** 
+avant de passer au stage suivant.
 
-job-test:
-  stage: test
-  image: maven:3.9.9-eclipse-temurin-23-alpine
-  before_script:
-  - cd demo-no-db
-  script:
-    - mvn test
-job-build:
+Dans l'exemple ci-dessous, le pipeline est structuré en 3 étapes : 
+`build`, `test`, et `deploy`. `build_job` s’exécute en premier, 
+une fois terminé, `test_job` démarre et une fois les tests 
+réussis, `deploy_job` démarre.
+
+```yaml title="gitlab-ci.yml" showLineNumbers
+// highlight-next-line
+stages:
+  - build
+  - test
+  - deploy
+
+build_job:
+// highlight-next-line
   stage: build
-  image: maven:3.9.9-eclipse-temurin-23-alpine
-  before_script:
-  - cd demo-no-db
   script:
-    - mvn package -DskipTests
+    - echo "Compilation du projet..."
+
+test_job:
+// highlight-next-line
+  stage: test
+  script:
+    - echo "Exécution des tests..."
+
+deploy_job:
+// highlight-next-line
+  stage: deploy
+  script:
+    - echo "Déploiement en production..."
 ```
 
-:::note Exercice D
+Plusieurs jobs peuvent être associés à un stage.
+Par exemple dans le cadre d'une application divisée en
+une partie frontend et backend, on peut imaginer le pipeline suivant : 
 
-Exercice : Utilisation des stages dans GitLab CI/CD
-Objectif :
+```yaml title="gitlab-ci.yml" showLineNumbers
+// highlight-next-line
+stages:
+  - build
+  - deploy
 
-Créer un pipeline GitLab CI/CD structuré en plusieurs étapes (stages) pour :
+# Deux jobs dans le stage "build"
+compile_frontend:
+// highlight-next-line
+  stage: build
+  script:
+    - echo "Compilation du frontend..."
 
-    prepare : Installer les dépendances nécessaires.
-    test : Vérifier l'état d'un site web.
-    deploy : Simuler un déploiement si le test est réussi.
+compile_backend:
+// highlight-next-line
+  stage: build
+  script:
+    - echo "Compilation du backend..."
 
-Instructions :
+# Un seul job dans le stage "deploy"
+deploy_app:
+// highlight-next-line
+  stage: deploy
+  script:
+    - echo "Déploiement de l'application..."
+```
 
-    Créez un fichier .gitlab-ci.yml dans votre dépôt.
-    Définissez trois stages : prepare, test et deploy.
-    Ajoutez les jobs correspondants.
-    Vérifiez que le job deploy s'exécute uniquement si le job test réussit.
+:::tip Optimisation
+
+Tous les jobs appartenant au même stage s'exécutent en parallèle 
+si plusieurs runners sont disponibles.
+
+:::
+
+:::note Exercice F : Structurer un pipeline
+
+Écrivez un pipeline pour l'application *demo-no-db* qui.
+
+- Définit deux stages : *test* et *build*.
+- Crée deux jobs distincts (*job-test* et *job-build*)
+- S'exécute dans un environnement Maven basé sur l'image `maven:3.9.9-eclipse-temurin-23-alpine`.
+- Utilise `mvn test` pour exécuter les tests dans *job-test*.
+- Utilise `mvn package -DskipTests` pour compiler le projet sans exécuter les tests dans *job-build*.
 
 :::
 
 ### Ajout d'une cache
 
-- Le caching permet d'améliorer les performances en évitant de re-télécharger des dépendances ou de recompiler du code déjà construit.
-- Il est défini au niveau des jobs dans .gitlab-ci.yml.
-- Les caches sont stockés sur le runner et peuvent être partagés entre différents jobs.
-- Exemple d'utilisation pour un projet Maven :
+La directive cache dans un fichier `.gitlab-ci.yml` permet de 
+mémoriser certains fichiers ou répertoires sur le runner entre les 
+différentes exécutions d'un pipeline. 
+Cela évite de réinstaller ou reconstruire des dépendances à chaque 
+job, réduisant ainsi le temps d’exécution du pipeline.
+
+Par exemple Maven télécharge les dépendances d'un projet depuis un 
+repository distant et les stocke localement dans le répertoire 
+`~/.m2/repository`. 
+Sans cache, chaque job Maven dans un pipeline re-téléchargera 
+toutes les dépendances, ce qui est lent et consomme de la bande 
+passante. Le pipeline ci-dessous montre comment utiliser ce cache
+dans le cadre d'un job maven.
 
 ```yaml title="gitlab-ci.yml" showLineNumbers
-cache:
-  paths:
-    - .m2/repository/
-script:
-    - mvn test -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository
+my_first_job:
+  image: maven:3.9.9-eclipse-temurin-23-alpine
+  cache:
+    paths:
+      - .m2/repository/
+  script:
+      - mvn test -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository
 ```
 
-:::note Exercice E
+:::note Exercice G : Optimiser les installations
 
-Exercice : Utilisation du cache avec Python dans GitLab CI/CD
-Objectif :
+Créez un pipeline GitLab CI/CD qui exécute le script Python 
+suivant :
 
-Optimiser un pipeline GitLab CI/CD en mettant en cache les dépendances Python installées avec pip, afin d'accélérer les exécutions suivantes.
-Scénario :
+```python
+import requests
 
-Vous travaillez sur un projet Python et vous voulez :
+response = requests.get("https://api.git.esi-bru.be")
+if response.status_code == 200:
+    print("Requête réussie :", response.json())
+else:
+    print("Erreur :", response.status_code)
+```
 
-    Installer les dépendances avec pip install tout en les mettant en cache.
-    Exécuter un test simple pour vérifier le bon fonctionnement du script.
+Le script nécessite un environnement *Python 3.8* et 
+l'installation de la bibliothèque *requests* via la commande 
+`pip install requests`.
 
-Instructions :
-
-    Créez un fichier .gitlab-ci.yml dans votre dépôt.
-    Ajoutez un job qui installe les dépendances Python avec mise en cache.
-    Ajoutez un second job qui exécute un test simple.
-    Vérifiez que le cache est bien utilisé après la première exécution du pipeline.
+1. Configurez le pipeline pour installer *requests* dans un 
+environnement Docker avec l'image *python:3.8*.
+1. Utilisez la directive `cache` pour stocker les dépendances 
+installées dans le répertoire `~/.cache/pip`.
+1. Vérifiez que le cache fonctionne en exécutant plusieurs fois le 
+pipeline, en vous assurant que les dépendances ne sont pas 
+téléchargées à chaque exécution.
 
 :::
-
 
 ### Exécution conditionnée
 
+#### Controller un job avec when 
+
+Placée dans un job la directive `when` permet de contrôler quand ce
+job doit être exécuté. 
+
+Dans l'exemple ci-dessous, l'utilisation de `when: on_failure` 
+signifie que le job ne sera exécuté que si l'un des jobs 
+précédents échoue. 
+Cela peut être particulièrement utile pour des actions telles que 
+l'envoi de notifications en cas d'échec ou des processus de 
+récupération, comme le rollback d'une base de données ou 
+l'installation d'une version précédente de l'application si 
+l'installation de la nouvelle version échoue.
+
 ```yaml title="gitlab-ci.yml" showLineNumbers
-job_build:
+stages:
+  - build
+  - test
+  - notify
+
+build-job:
+  stage: build
   script:
-    - mvn package -DskipTests
-  only:
-    - main
-    - develop
+    - echo "Compilation du projet..."
+    - exit 1  # Simule un échec
+
+test-job:
+  stage: test
+  script:
+    - echo "Lancement des tests..."
+
+notify-job:
+  stage: notify
+  script:
+    - echo "Envoi de la notification d'échec..."
+  when: on_failure  # Ce job s'exécute si un job précédent échoue
 ```
 
-:::note Exercice F
+:::note Exercice H : Créer un job de récupération
 
-Exercice : Utilisation de only dans GitLab CI/CD
-Objectif :
+Exécutez le pipeline ci-dessus et vérifiez que le job `notify-job`
+est exécuté et que le job `test-job` ne démarre jamais via le menu *Build > Pipelines* de votre projet sur le serveur GitLab.
 
-Créer un pipeline GitLab CI/CD où :
-
-    Certains jobs ne s'exécutent que sur la branche main.
-    D'autres jobs s'exécutent uniquement sur des branches de feature (feature/*).
-
-Scénario :
-
-Vous développez une application et vous voulez :
-
-    Exécuter des tests sur toutes les branches (run_tests).
-    Déployer uniquement depuis main (deploy).
-    Analyser la qualité du code uniquement sur les branches feature/* (code_quality).
-
-Instructions :
-
-    Créez un fichier .gitlab-ci.yml dans votre dépôt.
-    Ajoutez trois jobs : run_tests, deploy, code_quality.
-    Utilisez only pour restreindre leur exécution.
-    Poussez des commits sur main et une branche feature/test pour observer la différence.
+Modifiez le job `build-job:` et ajoutez la directive 
+`allow_failure: true`. Quelle modification du comportement du
+pipeline observez-vous ?
 
 :::
 
-### Workflow
+
+Consultez les différentes valeurs possibles pour la directive `when` [dans la documentation](https://docs.gitlab.com/ci/yaml/#when).
+
+:::tip valeur par défaut
+
+Par défaut chaque job est associé aux directives *when: on_success*
+et `allow_failure: false`. Ce qui explique que chaque job 
+s'exécute si aucun job précédent n'est tombé en erreur.
+
+:::
+
+
+#### Controller un pipeline avec workflow
+
+La directive `workflow` dans un fichier `.gitlab-ci.yml` permet de 
+définir les conditions sous lesquelles un pipeline GitLab doit 
+être exécuté. 
+Elle sert à contrôler l'exécution du pipeline dans son ensemble, 
+en fonction de conditions telles que des branches spécifiques, des 
+événements de merge request, ou d'autres critères.
+
+:::warning only/except
+
+Les règles de contrôle d'exécution peuvent être définies
+via les directives *only* et *except*. Mais ces directive sont
+[signalées comme deprecated](https://docs.gitlab.com/ci/yaml/#only--except) et doivent être évitées.
+
+:::
+
+
+Dans l'exemple ci-dessous, le pipeline se déclenche seulement si 
+le commit est sur la branche `main`. Cela permet de restreindre 
+l'exécution des pipelines à des cas spécifiques, comme un 
+déploiement sur la branche principale.
 
 ```yaml title="gitlab-ci.yml" showLineNumbers
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
+stages:
+  - deploy
+
+deploy-job:
+  stage: deploy
+  script:
+    - echo "Déploiement de la version"
 ```
 
-:::note Exercice F
+`rules:` permet de spécifier des règles basées sur des 
+variables d'environnement (comme `$CI_COMMIT_BRANCH`, 
+`$CI_COMMIT_TAG`,...). Chaque règle est précisée via l'utilisation
+de `- if:`.
 
-Exercice : Contrôle du workflow avec workflow: dans GitLab CI/CD
-Objectif :
+:::note Exercice H : Déployer une application sous condition
 
-Utiliser workflow: pour empêcher l'exécution du pipeline dans certaines conditions et l'autoriser dans d'autres.
-Scénario :
+Un tag dans Git est une référence ou un marqueur attaché à un 
+commit spécifique dans l'historique d'un projet. Contrairement à 
+une branche, un tag est généralement utilisé pour marquer des 
+points importants dans l'historique, comme des versions ou des 
+releases. Les commandes suivantes permettent de créer un tag 
+associé à la version 1.0 du projet.
 
-Vous travaillez sur un projet où :
+```sh
+git tag v1.0
+git push origin v1.0
+```
 
-    Le pipeline ne doit s'exécuter que si un fichier spécifique (src/) a été modifié.
-    Le pipeline ne doit PAS s'exécuter si le commit contient [skip ci] dans le message.
+Créez un pipeline qui ne s'exécute que lorsqu'un tag correspondant
+au format de version v1.0, v2.0, v3.0, etc., est ajouté au dépôt. 
+Une expression régulière du type `^v\d+\.\d+$` peut être utilisée
+pour reconnaître le format.
 
-Instructions :
+:::
 
-    Créez un fichier .gitlab-ci.yml dans votre dépôt.
-    Ajoutez une règle workflow: rules pour contrôler l’exécution du pipeline.
-    Ajoutez un job simple (run_tests) pour vérifier si le pipeline démarre correctement.
-    Testez en poussant différentes modifications :
-        Modifiez un fichier dans src/ → Le pipeline doit s’exécuter ✅
-        Modifiez un fichier hors src/ (ex: README.md) → Le pipeline NE DOIT PAS s’exécuter ❌
-        Ajoutez [skip ci] dans le message du commit → Le pipeline NE DOIT PAS s’exécuter ❌
 
+### Analyse avec SonarQube
+
+Une étape importante dans l'exécution d'un pipeline est l'analyse
+du code déposé. Si vous avez un conteneur SonarQube installé
+sur votre machine hôte, vous pouvez connecter le conteneur 
+SonarQube et le conteneur du runner pour qu'ils puissent 
+communiquer et réaliser cette analyse.
+
+Par exemple dans le TD sur SonarQube vous aviez créé : 
+- un réseau intitulé `sonar-network`
+- un conteneur intitulé `sonarqube`
+
+Vous pouvez alors connecter le runner au réseau via la commande : 
+
+```sh
+docker network connect sonar-network gitlab-runner
+```
+
+:::note Exercice I : Analyser la qualité du code
+
+Créez un pipeline pour l'application *demo-no-db* qui lance
+les tests de l'application et analyse le code via SonarQube.
+
+Pour permettre au runner d'enregistrer les résultats de 
+l'analyse de code à SonarQube, créez **la variable secrète** 
+`SONAR_TOKEN` sur le serveur git contenant le token 
+d'authentification au serveur SonarQube.
+
+Le stage de test peut se résumer à :
+
+```yaml title="gitlab-ci.yml" showLineNumbers
+test:
+  script:
+    - mvn test
+    - mvn jacoco:report
+```
+
+Le stage d'analyse peut s'écrire comme :
+
+```yaml title="gitlab-ci.yml" showLineNumbers
+sonarqube:
+  image: sonarsource/sonar-scanner-cli
+  stage: analyze
+  script:
+    - sonar-scanner \
+      -Dsonar.host.url=http://sonarqube:9000 \
+      -Dsonar.login=$SONAR_TOKEN
+```
+
+Vérifiez le bon fonctionnement de votre pipeline en consultant
+le résultat de l'analyse via [http://sonarqube:9000](http://sonarqube:9000).
+
+:::
+
+### Déploiement sur Alwaysdata
+
+Lors des précédents TDs sur l’automatisation du déploiement sur 
+AlwaysData, vous avez configuré une connexion SSH entre votre
+machine hôte et AlwaysData en générant une clé SSH. 
+La clé privée associée à cette connexion est stockée sur votre 
+machine dans le fichier `~/.ssh/id_rsa`.
+
+Pour automatiser le déploiement de l’application `demo-no-db` 
+via un pipeline, le runner doit utiliser la commande 
+`scp` pour transférer le fichier `.jar` généré après la 
+compilation.
+
+Afin d’établir une connexion sécurisée entre le runner et 
+AlwaysData, vous devez ajouter votre clé privée SSH en tant que 
+variable masquée dans GitLab CI/CD sous le nom `SSH_PRIVATE_KEY`.
+Le pipeline pourra ensuite récupérer cette clé et l’utiliser grâce aux commandes suivantes :
+
+
+```sh
+echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+chmod 600 ~/.ssh/id_rsa
+```
+
+Ces instructions permettront au runner de s’authentifier et 
+d’effectuer le transfert du fichier sans intervention manuelle.
+
+:::note Exercice J : Déployer sur AlwaysData
+
+Créez un pipeline pour l’application *demo-no-db* qui :
+
+- Compile l’application et génère le fichier **.jar**.
+- Déploie automatiquement l’application sur AlwaysData.
+
+
+Si le fichier **.jar** n’est pas disponible après la compilation, 
+consultez [la documentation sur le mot-clé artifacts](https://docs.gitlab.com/ci/yaml/#artifacts).
+
+Bonus : [La documentation d’AlwaysData](https://help.alwaysdata.com/en/api/)
+indique qu’il est possible de redémarrer le serveur via une API.
+Essayez d’intégrer cette fonctionnalité à votre pipeline pour 
+déclencher automatiquement le redémarrage du serveur après le 
+déploiement. 
+ 
 :::
 
 
 ### Docker in Docker
+
+Docker in Docker (DinD) désigne l'exécution de Docker à 
+l'intérieur d'un conteneur Docker, permettant ainsi à un conteneur 
+de lancer des commandes Docker et de gérer d'autres conteneurs.
+
+Il est couramment utilisé dans les pipelines CI/CD lorsque des 
+jobs doivent construire des images Docker directement au sein d'un 
+conteneur.
+
+Ce mécanisme est particulièrement utile pour vérifier qu'une image 
+générée à partir de votre application est valide avant de 
+l'envoyer vers un serveur cloud.
+
+Voici un exemple de pipeline intégrant Docker in Docker :
 
 ```yaml title="gitlab-ci.yml" showLineNumbers
 docker_build:
@@ -627,83 +863,4 @@ docker_build:
     DOCKER_TLS_CERTDIR: "/certs"  # Nécessaire pour Docker-in-Docker
 ```
 
-### Secrets et clés
-
-
-
-### Analyse avec SonarQube
-
-```yaml title="gitlab-ci.yml" showLineNumbers
-stages:
-  - test
-  - analyze
-
-test:
-  script:
-    - mvn test
-    - mvn jacoco:report
-
-sonarqube:
-  image: sonarsource/sonar-scanner-cli
-  stage: analyze
-  script:
-    - sonar-scanner \
-      -Dsonar.host.url=http://sonarqube:9000 \
-      -Dsonar.login=$SONAR_TOKEN
-  dependencies:
-    - test
-```
-
-Le runner GitLab doit être connecté au même réseau Docker que SonarQube Server. Le conteneur sonaqube est utilisé dans la variable passée la commande sonar-scanner : `-Dsonar.host.url=http://sonarqube:9000`
-
-```sh
-docker network connect sonar-network gitlab-runner
-```
-
-
-### Déploiement sur Alwaysdata
-
-Les variables d'environnements, de la console web au fichier .bashrc ou .profile.
-
-Un redémarrage nécessaire.
-Redémarrage manuel
-
-Redémarrage via l'api
-
-
-```yaml title="gitlab-ci.yml" showLineNumbers
-
-```
-
-## Exercice : Créer un pipeline de déploiement
-
-- Créez un dépôt avec l'application spring boot demo dans le groupe 2024-2025/devops-labos intitulé g12345-ci, g12345 doit être remplacé par votre matricule
-- Placez-y le fichier Dockerfile et docker-compose.yml
-- Placez-y les fichiers ignore
-- Placez-y le sonar-project.properties
-- Créez le fichier gitlab-ci.yml
-
-Le pipeline doit : 
-- Utiliser une cache pour maven
-- Se déclencher uniquement si un tag Release est utilisé
-- Vérifier que l'application compile
-- Vérifier que les test unitaires s'exécutent avec succès
-- Vérifier que les conteneurs Docker sont opérationnels
-- Vérifier que la qualité du code est suffisante
-- Déploie l'application sur Alwaysdata (mise à jour des variables d’environnement, copie du jar, démarrage de l'application)
-- Si une des étapes échouent le pipeline doit échouer
-
-La structure du projet ressemble à :
-
-```sh
-my-project/
-│
-├── Dockerfile                  # Définition de l'image Docker
-├── docker-compose.yml          # Configuration des services Docker
-│
-├── .gitignore                  # Fichier pour ignorer certains fichiers (ex. fichiers Terraform, Docker)
-├── README.md                   # Documentation du projet
-├── .dockerignore               # Fichier pour ignorer certains fichiers dans Docker
-├── gitlab-ci.yml          # Configuration du pipeline
-└── src/                        # Code de l'application
-```
+Un exercice dédié à son utilisation sera proposé dans le TD sur le cloud.
