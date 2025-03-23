@@ -240,11 +240,11 @@ Lorsqu’un projet est analysé dans SonarQube, plusieurs catégories permettent
 
 Dans SonarQube, chaque catégorie est accompagnée d'une note de gravité représentée par des lettres (A, B, C, D, E) pour indiquer l'importance des problèmes détectés dans le code. Ces lettres permettent de prioriser les actions à prendre pour corriger les problèmes.
 
-- **A** : Problème critique, nécessite une attention immédiate et doit être corrigé en priorité.
-- **B** : Problème majeur, important mais non bloquant, à résoudre dès que possible.
+- **A** : Problème très faible ou informatif, sans impact notable, peut être ignoré ou corrigé plus tard.
+- **B** : Problème faible, a peu d'impact, à résoudre à moyen terme.
 - **C** : Problème mineur, moins critique, à corriger mais pas urgent.
-- **D** : Problème faible, a peu d'impact, à résoudre à moyen terme.
-- **E** : Problème très faible ou informatif, sans impact notable, peut être ignoré ou corrigé plus tard.
+- **D** : Problème majeur, important mais non bloquant, à résoudre dès que possible.
+- **E** : Problème critique, nécessite une attention immédiate et doit être corrigé en priorité.
 
 Cliquez sur le nom du projet et accédez au tableau de bord du projet.
 Vous devriez obtenir un résultat similaire à celui présenté ci-dessous.
