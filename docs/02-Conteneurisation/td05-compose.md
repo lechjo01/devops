@@ -681,7 +681,7 @@ aux connexions réseau, comme le nombre de connexions simultanées. Ce bloc est 
 - `http { }` : Configuration principale du serveur HTTP.
 - `server { }` : Déclare un serveur HTTP.
 - `listen 80;` : Le serveur écoute le port 80, port par défaut pour les requêtes HTTP. Toutes les requêtes reçues sur ce port seront gérées par ce serveur.
-- `location /he2b {proxy_pass https://he2b.be/;}` : Quand un utilisateur visite http://localhost/he2b, NGINX redirige la requête vers https://he2b.be/, tout en conservant la partie restante de l'URL, par exemple visiter http://localhost:8080/he2b/etudiant redirige vers https://he2b.be/etudiant.
+- `location /he2b {proxy_pass https://he2b.be/;}` : Quand un utilisateur visite [http://localhost:8081/he2b](http://localhost:8081/he2b), NGINX redirige la requête vers https://he2b.be/, tout en conservant la partie restante de l'URL, par exemple visiter http://localhost:8081/he2b/etudiant redirige vers https://he2b.be/etudiant.
 
 Ce reverse proxy permet d'unifier plusieurs services sous un 
 même domaine. Il peut être amélioré avec l'ajout d'en-têtes HTTP pour mieux gérer la transmission des requêtes ou par l'ajout de la gestion des requêtes HTTPS. N'hésitez pas à consulter [la documentation pour approffondir les possibilités](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/).
