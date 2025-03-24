@@ -83,7 +83,7 @@ Un token d’authentification est nécessaire pour permettre au scanner SonarQub
 Une fois connecté au serveur SonarQube :
 
 - Allez dans *Mon compte* (en haut à droite).
-- Sélectionnez l'onglet *Tokens*.
+- Sélectionnez l'onglet *Security*.
 - Remplissez le formulaire de génération d'un token  :
    - *Name* : premier-token
    - *Type* : Global Analysis Token
