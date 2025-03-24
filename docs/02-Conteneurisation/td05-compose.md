@@ -912,7 +912,7 @@ http {
 ```
 
 Démarrez vos conteneurs et lancez plusieurs fois la 
-commande `curl http://localhost:8080/demo-no-db/` pour consommer
+commande `curl http://localhost:8080/demo-no-db` pour consommer
 le service rest de l'application `demo-no-db`. 
 
 Est-ce que le résultat affiché est toujours le même ?
