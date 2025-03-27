@@ -247,7 +247,7 @@ Maintenant que le runner est configuré, créez
 **à la racine de votre projet** le fichier `.gitlab-ci.yml` 
 suivant : 
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 my_first_job:
   script:
     - echo "Hello World!"
@@ -284,7 +284,7 @@ Cherchez dans ces logs le résultat de l'instruction
 Vous pouvez déclarer une variable dans le fichier `.gitlab-ci.yml`
 via le mot clé `variables` :
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 variables:
   FIRST_VARIABLE: "Test"
 
@@ -323,7 +323,7 @@ Créez la variable MY_VARIABLE avec la valeur 42
 via l’interface GitLab. Vérifiez la création de la
 variable via une mise à jour du fichier *gitlab-ci.yml*.
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 my_first_job:
   script:
     - echo "Hello World!"
@@ -347,7 +347,7 @@ Pour ajouter une condition sur une variable vous pouvez
 utiliser le bloc conditionnel de votre shell.
 Par exemple, le script peut ressembler à : 
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 my_first_job:
   script:
     - echo "Hello World!"
@@ -399,7 +399,7 @@ d'une erreur.
 Modifiez votre pipeline en demandant au job d'afficher la
 version de maven utilisable dans le runner.
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 my_first_job:
   script:
     - mvn --version
@@ -419,7 +419,7 @@ des instructions contenues dans la partie script d'un job, vous
 pouvez ajouter les sections `before_script` et `after_script` comme
 dans l'exemple suivant : 
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 my_first_job:
   before_script:
     - echo "Installation des dépendances..."
@@ -454,7 +454,7 @@ nécessaires sont disponibles.
 Par exemple vous pouvez utiliser une image spécifique
 pour un job nécessitant maven.
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 my_first_job:
   image: maven:3.9.9-eclipse-temurin-23-alpine
   script:
@@ -476,7 +476,7 @@ Dans l'exemple ci-dessous, le pipeline est structuré en 3 étapes :
 une fois terminé, `test_job` démarre et une fois les tests 
 réussis, `deploy_job` démarre.
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 // highlight-next-line
 stages:
   - build
@@ -506,7 +506,7 @@ Plusieurs jobs peuvent être associés à un stage.
 Par exemple dans le cadre d'une application divisée en
 une partie frontend et backend, on peut imaginer le pipeline suivant : 
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 // highlight-next-line
 stages:
   - build
@@ -568,7 +568,7 @@ toutes les dépendances, ce qui est lent et consomme de la bande
 passante. Le pipeline ci-dessous montre comment utiliser ce cache
 dans le cadre d'un job maven.
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 my_first_job:
   image: maven:3.9.9-eclipse-temurin-23-alpine
   cache:
@@ -623,7 +623,7 @@ récupération, comme le rollback d'une base de données ou
 l'installation d'une version précédente de l'application si 
 l'installation de la nouvelle version échoue.
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 stages:
   - build
   - test
@@ -693,7 +693,7 @@ le commit est sur la branche `main`. Cela permet de restreindre
 l'exécution des pipelines à des cas spécifiques, comme un 
 déploiement sur la branche principale.
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 workflow:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -828,7 +828,7 @@ d'authentification au serveur SonarQube.
 
 Le stage de test peut se résumer à :
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 test:
   stage: test
   image: maven:3.9.9-eclipse-temurin-23-alpine
@@ -842,7 +842,7 @@ test:
 
 Le stage d'analyse peut s'écrire comme :
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 sonarqube:
   stage: sonarqube
   image: 
@@ -920,7 +920,7 @@ l'envoyer vers un serveur cloud.
 
 Voici un exemple de pipeline intégrant Docker in Docker :
 
-```yaml title="gitlab-ci.yml" showLineNumbers
+```yaml title=".gitlab-ci.yml" showLineNumbers
 docker_build:
   stage: docker_build
   image: docker:20.10.16  # Utilise l'image Docker pour construire l'image
