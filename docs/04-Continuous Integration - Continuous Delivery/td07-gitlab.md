@@ -552,6 +552,29 @@ si plusieurs runners sont disponibles.
 
 :::
 
+### Echange de fichiers entre jobs
+
+Dans GitLab CI/CD, un **artifact** est un fichier ou un ensemble de fichiers générés 
+lors de l'exécution d'un job dans un pipeline. 
+Ces fichiers peuvent être sauvegardés et partagés **entre différents jobs du pipeline**.
+
+Par exemple si vous souhaitez que le résultat de la compilation
+par maven soit conservé pour le job de test, il suffit de modifier
+le job de compilation comme ci-dessous :
+
+```yaml title=".gitlab-ci.yml" showLineNumbers
+build:
+  stage: build
+  image: maven:3.9.9-eclipse-temurin-23-alpine
+  script:
+    - echo "Compilation du projet..."
+    - mvn compile
+  artifacts:
+    paths:
+      - target/  # Conserver le dossier target
+    expire_in: 1h  # L'artifact est supprimé après 1 heure
+```
+
 ### Ajout d'une cache
 
 La directive cache dans un fichier `.gitlab-ci.yml` permet de 
