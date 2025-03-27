@@ -737,20 +737,84 @@ pour reconnaître le format.
 ### Analyse avec SonarQube
 
 Une étape importante dans l'exécution d'un pipeline est l'analyse
-du code déposé. Si vous avez un conteneur SonarQube installé
-sur votre machine hôte, vous pouvez connecter le conteneur 
-SonarQube et le conteneur du runner pour qu'ils puissent 
-communiquer et réaliser cette analyse.
+du code déposé. Le GitLab Runner, chargé d'exécuter les demandes du script, 
+crée **un nouveau conteneur** basé sur l’image spécifiée par la directive `image:`.
 
-Par exemple dans le TD sur SonarQube vous aviez créé : 
-- un réseau intitulé `sonar-network`
-- un conteneur intitulé `sonarqube`
+Pour permettre la communication entre le serveur SonarQube, créé lors du TD précédent, 
+et ce conteneur temporaire, ils doivent être connectés au même réseau.
+Vous aviez appelé ce réseau `sonar-network`.
 
-Vous pouvez alors connecter le runner au réseau via la commande : 
+La solution la plus simple, sans modifier manuellement le fichier de configuration 
+situé dans le dossier `gitlab-runner/config`, consiste à :
 
-```sh
-docker network connect sonar-network gitlab-runner
-```
+- Retirer le GitLab Runner de la liste des runners de votre projet via l’interface web de [git.esi-bru.be](https://git.esi-bru.be).
+- Arrêter le conteneur GitLab Runner avec la commande : `docker stop gitlab-runner`
+- Supprimer le conteneur GitLab Runner avec : `docker rm gitlab-runner`
+- Créer un nouveau conteneur GitLab Runner : 
+<Tabs groupId="operating-systems">
+  <TabItem value="Linux/macOS" label="Linux/MacOS">
+  ```sh
+  docker run -d \
+    --name gitlab-runner \
+    --restart always \
+    -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    gitlab/gitlab-runner:latest
+  ```
+ </TabItem>
+  <TabItem value="win" label="Windows">
+  N'oubliez pas chde remplacer dans la commande ci-dessous le *chemin_absolu_vers_la_configuration*
+
+  ```sh
+  docker run -d ^
+    --name gitlab-runner ^
+    --restart always ^
+    -v chemin_absolu_vers_la_configuration\gitlab-runner\config:/etc/gitlab-runner ^
+    -v /var/run/docker.sock:/var/run/docker.sock ^
+    gitlab/gitlab-runner:latest
+  ```
+  </TabItem>
+</Tabs>
+
+- Enregistrer le runner en précisant le réseau auquel doivent être connectés tous les conteneurs utilisés, à l’aide de la commande
+
+<Tabs groupId="operating-systems">
+  <TabItem value="Linux/macOS" label="Linux/MacOS">
+  ```sh
+  docker run --rm \
+    -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+    gitlab/gitlab-runner register \
+      --non-interactive \
+      --url "https://git.esi-bru.be" \
+      // highlight-next-line
+      --token "$RUNNER_TOKEN" \
+      --executor "docker" \
+      --docker-image alpine:latest \
+      --description "docker-runner"
+      // highlight-next-line
+      --docker-network-mode "sonar-network"
+  ```
+ </TabItem>
+  <TabItem value="win" label="Windows">
+  N'oubliez pas chde remplacer dans la commande ci-dessous le *chemin_absolu_vers_la_configuration*
+
+  ```sh
+  docker run --rm ^
+    -v chemin_absolu_vers_la_configuration\gitlab-runner\config:/etc/gitlab-runner ^
+    gitlab/gitlab-runner register ^
+      --non-interactive ^
+      --url "https://git.esi-bru.be" ^
+      // highlight-next-line
+      --token "$RUNNER_TOKEN" 
+      --executor "docker" ^
+      --docker-image alpine:latest ^
+      --description "docker-runner"
+      // highlight-next-line
+      --docker-network-mode "sonar-network"
+  ```
+
+  </TabItem>
+</Tabs>
 
 :::note Exercice I : Analyser la qualité du code
 
@@ -766,21 +830,26 @@ Le stage de test peut se résumer à :
 
 ```yaml title="gitlab-ci.yml" showLineNumbers
 test:
+  stage: test
+  image: maven:3.9.9-eclipse-temurin-23-alpine
   script:
-    - mvn test
-    - mvn jacoco:report
+    - echo "Exécution des tests avec JaCoCo..."
+    - mvn test jacoco:report
+  artifacts:
+    paths:
+      - target/site/jacoco/  # Sauvegarde le rapport JaCoCo
 ```
 
 Le stage d'analyse peut s'écrire comme :
 
 ```yaml title="gitlab-ci.yml" showLineNumbers
 sonarqube:
-  image: sonarsource/sonar-scanner-cli
-  stage: analyze
-  script:
-    - sonar-scanner \
-      -Dsonar.host.url=http://sonarqube:9000 \
-      -Dsonar.login=$SONAR_TOKEN
+  stage: sonarqube
+  image: 
+    name: sonarsource/sonar-scanner-cli:latest
+  script: 
+    - echo "Exécution de l'analyse via SonarQube"
+    - sonar-scanner -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=$SONAR_TOKEN
 ```
 
 Vérifiez le bon fonctionnement de votre pipeline en consultant
