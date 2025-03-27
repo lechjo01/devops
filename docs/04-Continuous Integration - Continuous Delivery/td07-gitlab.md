@@ -835,7 +835,6 @@ situé dans le dossier `gitlab-runner/config`, consiste à :
       // highlight-next-line
       --docker-network-mode "sonar-network"
   ```
-
   </TabItem>
 </Tabs>
 
@@ -848,6 +847,20 @@ Pour permettre au runner d'enregistrer les résultats de
 l'analyse de code à SonarQube, créez **la variable secrète** 
 `SONAR_TOKEN` sur le serveur git contenant le token 
 d'authentification au serveur SonarQube.
+
+Le stage de compilation a utiliser est : 
+
+```yaml title=".gitlab-ci.yml" showLineNumbers
+build:
+  stage: build
+  image: maven:3.9.9-eclipse-temurin-23-alpine
+  script:
+    - echo "Compilation du projet..."
+    - mvn compile
+  artifacts:
+    paths:
+      - target/  # Sauvegarde les fichiers compilés
+```
 
 Le stage de test peut se résumer à :
 
