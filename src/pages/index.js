@@ -40,10 +40,10 @@ export default function Home() {
         <div className="text--left padding-horiz--md">
           <h2>Introduction aux pratiques DevOps</h2>
           <p>
-            Bienvenue dans cette série de travaux dirigés (TD) dédiés à l’apprentissage des pratiques et des outils fondamentaux du DevOps.
-            L’objectif de cette suite de travaux dirigés est de vous fournir une compréhension pratique des concepts clés du DevOps
+            Bienvenue dans cette série de travaux dirigés (TD) dédiés à l'apprentissage des pratiques et des outils fondamentaux du DevOps.
+            L'objectif de cette suite de travaux dirigés est de vous fournir une compréhension pratique des concepts clés du DevOps
             tout en vous guidant à travers des scénarios concrets. Vous apprendrez à concevoir, automatiser et optimiser des processus
-            pour améliorer le développement et le déploiement d’applications.
+            pour améliorer le développement et le déploiement d'applications.
           </p>
 
           <h3>Objectifs</h3>
@@ -51,7 +51,7 @@ export default function Home() {
             Au fil des séances, vous serez amenés à :
           </p>
           <ul>
-            <li>Comprendre les défis et les bonnes pratiques liés au déploiement d’applications.</li>
+            <li>Comprendre les défis et les bonnes pratiques liés au déploiement d'applications.</li>
             <li>Maîtriser les outils essentiels du DevOps tels que Docker, GitLab CI/CD et Terraform.</li>
             <li>Explorer les interactions entre ces outils dans des scénarios réalistes.</li>
           </ul>
@@ -60,7 +60,7 @@ export default function Home() {
           <ol>
             <li>
               <strong>Déploiement sur Alwaysdata</strong><br />
-              Découvrez les points critiques d’un déploiement initial : configuration des environnements, gestion des dépendances et publication d’une application sur une plateforme d’hébergement.
+              Découvrez les points critiques d'un déploiement initial : configuration des environnements, gestion des dépendances et publication d'une application sur une plateforme d'hébergement.
             </li>
             <li>
               <strong>Introduction à Docker</strong><br />
@@ -68,19 +68,19 @@ export default function Home() {
             </li>
             <li>
               <strong>Analyse de la qualité de code avec SonarQube</strong><br />
-              Découvrez comment évaluer votre code grâce à SonarQube afin de détecter automatiquement les problèmes de qualité de code et d’autoriser uniquement les publications correctes.
+              Découvrez comment évaluer votre code grâce à SonarQube afin de détecter automatiquement les problèmes de qualité de code et d'autoriser uniquement les publications correctes.
             </li>
             <li>
               <strong>Créer un pipeline avec GitLab CI/CD </strong><br />
               Apprenez à automatiser le cycle de livraison en utilisant GitLab CI/CD qui mettra en interaction les outils étudiés (Docker, SonarQube, etc.).
             </li>
             <li>
-              <strong>Déploiement sur AWS</strong><br />
-              Explorez les concepts de déploiement cloud sur AWS. Vous apprendrez à configurer un environnement de production pour garantir un déploiement fiable.
+              <strong>Déploiement sur Microsoft Azure</strong><br />
+              Explorez les concepts de déploiement cloud sur Microsoft Azure. Vous apprendrez à configurer un environnement de production pour garantir un déploiement fiable.
             </li>
             <li>
               <strong>Infrastructure as Code (IaC) avec Terraform</strong><br />
-              Découvrez comment gérer et provisionner vos infrastructures à l’aide de Terraform.
+              Découvrez comment gérer et provisionner vos infrastructures à l'aide de Terraform.
             </li>
             <li>
               <strong>Monitoring</strong><br />
@@ -88,7 +88,7 @@ export default function Home() {
             </li>
             <li>
               <strong>Scénarios pratiques : Interactions entre outils DevOps</strong><br />
-              Terminez cette série de travaux dirigés avec des scénarios réalistes qui vous mettront dans des situations nécessitant l’utilisation coordonnée de plusieurs outils.
+              Terminez cette série de travaux dirigés avec des scénarios réalistes qui vous mettront dans des situations nécessitant l'utilisation coordonnée de plusieurs outils.
               Ces exercices vous prépareront à gérer des environnements DevOps dans le monde réel.
             </li>
           </ol>
