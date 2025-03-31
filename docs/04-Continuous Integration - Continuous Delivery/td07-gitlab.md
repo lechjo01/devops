@@ -860,6 +860,7 @@ build:
   artifacts:
     paths:
       - target/  # Sauvegarde les fichiers compilés
+    expire_in: 1h
 ```
 
 Le stage de test peut se résumer à :
@@ -874,6 +875,7 @@ test:
   artifacts:
     paths:
       - target/site/jacoco/  # Sauvegarde le rapport JaCoCo
+    expire_in: 1h
 ```
 
 Le stage d'analyse peut s'écrire comme :
