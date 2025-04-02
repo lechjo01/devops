@@ -609,7 +609,7 @@ suivant :
 ```python
 import requests
 
-response = requests.get("https://api.git.esi-bru.be")
+response = requests.get("https://git.esi-bru.be/api/v4/broadcast_messages")
 if response.status_code == 200:
     print("Requête réussie :", response.json())
 else:
