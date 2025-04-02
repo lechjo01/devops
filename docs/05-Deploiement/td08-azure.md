@@ -32,10 +32,6 @@ Pour accéder à l'offre Azure for Students, rendez-vous sur le site officiel
 [Azure for Students](https://azure.microsoft.com/fr-fr/free/students)
 et cliquez sur "Démarrer gratuitement".
 
-Connectez-vous au portail via votre email HE2B et activez votre compte : 
-[https://portal.azure.com/](https://portal.azure.com/)
-
-
 ## Différentes solutions de déploiements
 
 Microsoft Learn est une plateforme d'apprentissage en ligne proposée par Microsoft. 
