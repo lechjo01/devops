@@ -28,6 +28,10 @@ qui fournit un crédit gratuit ainsi que l'accès à différents services Azure 
 pendant 12 mois. Cette offre ne nécessite pas de carte bancaire, mais une vérification 
 du statut étudiant avec une adresse e-mail académique. 
 
+Pour accéder à l'offre Azure for Students, rendez-vous sur le site officiel
+[Azure for Students](https://azure.microsoft.com/fr-fr/free/students)
+et cliquez sur "Démarrer gratuitement".
+
 Connectez-vous au portail via votre email HE2B et activez votre compte : 
 [https://portal.azure.com/](https://portal.azure.com/)
 
@@ -96,12 +100,22 @@ commande pour le débogage.
 1. **Nettoyer les ressources** : Supprimez les ressources Azure pour éviter 
 des coûts inutiles.
 
-Suivez la partie **Linux container** du tutoriel en utilisant **Azure Portal** : 
-[https://learn.microsoft.com/en-us/azure/app-service/tutorial-custom-container](https://learn.microsoft.com/en-us/azure/app-service/tutorial-custom-container).
-L'objectif est de se familiariser avec les concepts Azure.
+:::warning Options du tutoriel
+
+Dans le tutoriel proposé ci-dessous, prenez attention à sélectionner
+l'option **Linux container** au début de la page.
+
+Dans la suite du tutoriel il vous est proposé d'effectuer le déploiement
+via Azure CLI ou **Azure Portal**, choisissez **Azure Portal**.
+Aucune installation n'est nécessaire pour effectuer le tutoriel
+via ce portail. L'objectif est de se familiariser avec les concepts Azure.
 L'automatisation de la création de l'infrastructure via des outils en ligne de 
 commande comme Terraform sera introduite dans les exercices suivants.
 
+:::
+
+Suivez la partie **Linux container** du tutoriel en utilisant **Azure Portal** : 
+[https://learn.microsoft.com/en-us/azure/app-service/tutorial-custom-container](https://learn.microsoft.com/en-us/azure/app-service/tutorial-custom-container) afin de réaliser votre premier déploiement.
 
 ## Adaptation aux applications Spring-Boot
 
