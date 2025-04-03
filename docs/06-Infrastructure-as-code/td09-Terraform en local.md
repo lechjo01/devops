@@ -407,7 +407,8 @@ terraform apply -var="file_name=file-param.txt"
 
 ##### Variables d'environement
 
-Vous pouvez définir une variable d'environnement avec le préfixe `TF_VAR`
+Si vous effacer la valeur de la variable du fichier terraform.tfvars,
+vous pouvez définir une variable d'environnement avec le préfixe `TF_VAR`
 
 ```sh
 export TF_VAR_file_content="contenu de la variable d'environnment"
