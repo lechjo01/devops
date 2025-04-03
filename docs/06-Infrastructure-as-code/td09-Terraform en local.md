@@ -1,8 +1,7 @@
 # TD 09 - Terraform
 
 Terraform est un outil d’Infrastructure as Code (IaC) développé par HashiCorp. 
-Il permet d’automatiser la création, la gestion et la mise à jour d’infrastructures 
-sur divers clouds (AWS, Azure, GCP) et services (Docker, Kubernetes, etc.).
+Il permet d’automatiser la création, la gestion et la mise à jour d’infrastructures.
 
 ### Objectifs 
 
@@ -18,42 +17,120 @@ en utilisant un script Terraform.
 
 ## Installation
 
-Terraform propose des binaires précompilés que l'on peut installer manuellement 
-en quelques étapes.
+Pour installer Terraform vous pouvez suivre les étapes suivantes : 
 
 1. Télécharger le binaire Terraform : https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
 1. Extraire et placer le binaire dans un dossier accessible
-1. Ajouter ce dossier à la variable d’environnement PATH 
+1. Ajouter ce dossier à la variable d’environnement `PATH` 
 
-Vérifier l'installation en exécutant la commande `terraform version`
+Vérifiez l'installation de Terraform en exécutant la commande `terraform version`
 
 ## Script Terraform
 
-Un script Terraform est un fichier écrit en HCL (HashiCorp Configuration Language) 
-qui décrit l’infrastructure qu’on souhaite créer, modifier ou supprimer de manière déclarative.
+Un script Terraform est un fichier écrit en HCL 
+([HashiCorp Configuration Language](https://developer.hashicorp.com/terraform/language/syntax/configuration)) 
+qui décrit l’infrastructure qu’on souhaite créer, modifier ou supprimer de manière **déclarative**.
+Un script Terraform est généralement nommés `main.tf` et est décomposé en **Block**.
 
-Les scripts Terraform sont généralement nommés main.tf, mais ils peuvent être 
-divisés en plusieurs fichiers (variables.tf, outputs.tf…).
+:::info block
 
-Un fichier main.tf suit généralement cette structure :
-- Provider : Définit la connexion à un service (Azure, Docker, AWS…).
-- Variables : Rendent le code plus dynamique et réutilisable.
-- Ressources : Définissent ce qui doit être créé (VM, conteneurs, bases de données…).
-- Outputs : Affichent des informations utiles après l'exécution.
+Un Block est une structure de configuration qui regroupe des paramètres 
+et des valeurs associés à une ressource, un module ou une configuration. 
+Il est défini par un type et peut-être associé à des libellés. Un Block
+contient un ou plusieurs arguments et éventuellement des blocs imbriqués.
+
+Un block suit généralement cette syntaxe :
+
+```sh 
+bloc_type "nom" "nom_optionnel" {
+  clé = valeur
+  clé2 = valeur2
+
+  bloc_imbriqué {
+    clé = valeur
+  }
+}
+```
+:::
+
+Le premier
+Block que vous allez rencontrer est le bloc `terraform {}`.
+
+```sh title="main.tf"
+terraform {
+  required_version = ">= 1.11.0"
+}
+```
+
+Ce bloc est utilisé pour configurer Terraform. 
+Il permet de spécifier des informations liées à l’environnement Terraform global. Dans l'exemple proposé il spécifie la version
+minimale de Terraform pour exécuter ce script.
+
+Vous pouvez consulter 
+[la documentation du bloc terraform](https://developer.hashicorp.com/terraform/language/terraform)
+pour connaitre les mots clés autorisés.
+
+En général un script Terraform est composé des Blocks suivants : 
+
+- `Provider` : Définit la connexion à un service (Azure, Docker, AWS…).
+- `Variables` : Rendent le code plus dynamique et réutilisable.
+- `Ressources` : Définissent ce qui doit être créé (VM, conteneurs, bases de données,…).
+- `Outputs` : Affichent des informations utiles après l'exécution, comme les adresses IP des serveurs créés.
+
+Si le script Terraform devient trop long, il peut être 
+divisé en plusieurs fichiers (`variables.tf`, `outputs.tf`,…).
 
 ## Provider
 
 Un provider dans Terraform est un plugin qui permet d’interagir avec une 
-plateforme (cloud, service, API). Il agit comme un connecteur entre Terraform 
-et l’infrastructure que tu veux gérer.
+plateforme. Il agit comme un connecteur entre Terraform 
+et l’infrastructure à gérer. La liste des providers est disponible sur le
+[registre Terraform](https://registry.terraform.io/browse/providers).
 
-Dans un premier temps, vous allez utiliser un provider local pour apprendre 
+Dans un premier temps, vous allez utiliser un **provider local** pour apprendre 
 les commandes Terraform essentielles avant de passer à la gestion 
 d'infrastructure dans le cloud. 
-
 Un provider local permet de créer et de manipuler des ressources sur votre 
 machine locale, ce qui est idéal pour se familiariser avec Terraform sans nécessiter 
-de connexion à un cloud provider comme AWS ou Azure.
+de connexion à un cloud provider comme Azure.
+
+Dans un nouveau dossier créez le fichier `main.tf` suivant : 
+
+```sh title="main.tf"
+terraform {
+  required_providers {
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.0"
+    }
+  }
+}
+
+provider "local" {}
+```
+
+`required_providers` : Ce sous-bloc indique les providers 
+nécessaires pour ce projet. Un provider est un plugin qui permet à Terraform 
+d'interagir avec un service externe (dans ce cas, le provider local).
+https://developer.hashicorp.com/terraform/language/providers/requirements
+
+- local : Le nom du provider. Ici, il s'agit du provider local, 
+qui permet de créer des ressources locales sur votre machine, comme des fichiers.
+
+- source : Spécifie la source du provider, ici hashicorp/local, 
+indiquant que le provider vient du registre officiel de HashiCorp.
+
+- version : Spécifie la version du provider à utiliser. 
+L'operator `~>` signifie que Terraform va utiliser la version 2.x, 
+mais automatiquement la version la plus récente dans cette plage (par exemple, 2.0 à 2.9).
+
+
+`provider "local" {}`
+Ce bloc définit la configuration du provider local. 
+Il est utilisé pour configurer la manière dont Terraform 
+va interagir avec le provider local (pour la gestion des ressources 
+locales comme les fichiers, les répertoires, etc.).
+https://developer.hashicorp.com/terraform/language/providers/configuration
 
 ## Premier Script
 
@@ -74,34 +151,6 @@ resource "local_file" "example" {
   filename = "${path.module}/example.txt"
 }
 ```
-
-`terraform {}`
-
-Ce bloc est utilisé pour configurer Terraform. 
-Il permet de spécifier des informations liées à l’environnement Terraform global, 
-comme la configuration des providers requis pour ce projet.
-
-
-`required_providers` : Ce sous-bloc indique les providers 
-nécessaires pour ce projet. Un provider est un plugin qui permet à Terraform 
-d'interagir avec un service externe (dans ce cas, le provider local).
-
-- local : Le nom du provider. Ici, il s'agit du provider local, 
-qui permet de créer des ressources locales sur votre machine, comme des fichiers.
-
-- source : Spécifie la source du provider, ici hashicorp/local, 
-indiquant que le provider vient du registre officiel de HashiCorp.
-
-- version : Spécifie la version du provider à utiliser. 
-L'operator `~>` signifie que Terraform va utiliser la version 2.x, 
-mais automatiquement la version la plus récente dans cette plage (par exemple, 2.0 à 2.9).
-
-
-`provider "local" {}`
-Ce bloc définit la configuration du provider local. 
-Il est utilisé pour configurer la manière dont Terraform 
-va interagir avec le provider local (pour la gestion des ressources 
-locales comme les fichiers, les répertoires, etc.).
 
 `resource "local_file" "example" {}`
 Ce bloc est utilisé pour définir une ressource. 
