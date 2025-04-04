@@ -1,7 +1,16 @@
 # TD 09 - Terraform
 
-Terraform est un outil d’Infrastructure as Code (IaC) développé par HashiCorp. 
-Il permet d’automatiser la création, la gestion et la mise à jour d’infrastructures.
+Dans ce TD, vous allez découvrir Terraform, un outil 
+d’**Infrastructure as Code** (IaC) développé par HashiCorp. 
+Terraform permet d’automatiser la création, la gestion et la mise à jour 
+des infrastructures de manière **déclarative**. 
+Grâce à lui, vous pouvez définir votre architecture sous forme de code 
+et la déployer de manière **reproductible** et **cohérente**.
+
+L’objectif de cet exercice est de vous familiariser avec les 
+concepts de base de Terraform en mettant en place une infrastructure simple. 
+Vous apprendrez à écrire un fichier de configuration, à initialiser un projet 
+Terraform et à appliquer vos changements pour **provisionner** des ressources automatiquement.
 
 ### Objectifs 
 
@@ -10,8 +19,7 @@ en utilisant un script Terraform.
 
 :::warning Pré-requis
 
-1. Connaissance de base en des commandes shell et du déploiement sur Microsoft Azure.
-1. Un environnement de travail prêt avec Docker Engine.
+Connaissance de base en des commandes shell et du déploiement sur Microsoft Azure.
 
 :::
 
@@ -358,7 +366,7 @@ Pour utiliser la variable dans le script `main.tf`, il suffit
 d'y faire référence via le mot clé `var`. Par exemple `var.file_content`
 fait référence à la variable `file_content`.
 
-**Modifiez** le fichier `main.tf`comme ci-dessous.
+**Modifiez** le fichier `main.tf` comme ci-dessous.
 
 ```sh title="main.tf" showLineNumbers
 terraform {
@@ -418,12 +426,21 @@ Si vous effacer la valeur de la variable du fichier `terraform.tfvars`,
 vous pouvez définir une variable d'environnement avec le préfixe `TF_VAR`.
 
 ```sh
-export TF_VAR_file_content="contenu de la variable d'environnment"
+export TF_VAR_file_content="contenu de la variable d’environnement"
 ```
 
-Fichier outputs.tf
+## Bloc de type output : affichage des résultats
 
-Afficher le fichier créé après terraform apply :
+En Terraform, le bloc output est utilisé pour afficher des valeurs 
+après l'exécution de terraform apply. Il permet d'extraire des informations 
+importantes des ressources créées et de les rendre accessibles à l'utilisateur 
+ou à d'autres configurations.
+
+Ce bloc peut être défini dans le fichier `main.tf` mais 
+pour structurer son projet Terraform il est d'usage de les créer 
+dans un fichier séparé : `outputs.tf`.
+
+Créez dans votre dossier de travail le fichier `outputs.tf` présenté ci-dessous.
 
 ```sh title="outputs.tf" showLineNumbers
 output "file_path" {
@@ -432,58 +449,57 @@ output "file_path" {
 }
 ```
 
+Lors de l'exécution de la commande `terraform apply`, les informations
+suivantes seront affichées dans le terminal : 
 
-Lire l'output via
+```sh
+Outputs:
+
+file_path = "./my_file.txt"
+```
+
+Vous pouvez afficher ce résultat par la suite via la commande suivante : 
 
 ```sh
 terraform output file_path
 ```
 
+Cette commande s’avère utile pour récupérer les adresses IP des serveurs créés.
 
-Passer des variables au moment de l'exécution :
+:::tip plusieurs output
 
-```sh
-terraform apply -var="file_content=Custom content" -var="file_name=custom.txt"
-```
-
-Avec un fichier terraform.tfvars
-
-```sh title="terraform.tfvars" showLineNumbers
-file_content = "Bonjour, ceci est un test avec terraform.tfvars!"
-file_name    = "mon_fichier.txt"
-```
-
-Ensuite `terraform apply -auto-approve`
-
-:::info Résumé des commandes terraform
-
-| Commande              | Description                                                              |
-|-----------------------|--------------------------------------------------------------------------|
-| `terraform init`       | Initialise un répertoire Terraform et télécharge les plugins nécessaires. |
-| `terraform plan`       | Affiche un plan des actions que Terraform va effectuer.                  |
-| `terraform apply`      | Applique le plan d'exécution en créant, modifiant ou supprimant des ressources. | 
-| `terraform destroy`    | Détruit toutes les ressources gérées par Terraform dans le projet.      |
-| `terraform validate`   | Vérifie la syntaxe et la configuration des fichiers Terraform.           |
-| `terraform show`       | Affiche l’état actuel des ressources gérées, depuis le fichier d’état ou un plan. |
-| `terraform output`     | Affiche les sorties définies dans les fichiers `outputs.tf`.            |
+Si vous avez défini plusieurs blocs de type `output`, vous pouvez r le
+résultat d'un seul de ces blocs en précisant son nom à la commande Terraform.
+Dans votre exemple vous pouvez écrire `terraform output file_path`.
 
 :::
 
-## Condition
+## Embranchements
+
+Terraform permet d'utiliser des boucles et des conditions pour rendre 
+les configurations plus dynamiques et flexibles. 
+
+Créez le projet Terraform composé des fichiers
+`variables.tf`, `main.tf` et `outputs.tf` ci-dessous.
 
 ```sh title="variables.tf" showLineNumbers
-variable "files" {
-  description = "Liste des fichiers à créer avec leur contenu"
-  type = list(object({
-    name    = string
-    content = string
-    create  = bool
-  }))
-  default = [
-    { name = "file1.txt", content = "Contenu du fichier 1", create = true },
-    { name = "file2.txt", content = "Contenu du fichier 2", create = false },
-    { name = "file3.txt", content = "Contenu du fichier 3", create = true }
-  ]
+variable "file_count" {
+  type    = number
+  default = 3
+}
+
+variable "files_map" {
+  type = map(string)
+  default = {
+    "fileA" = "Contenu du fichier A"
+    "fileB" = "Contenu du fichier B"
+    "fileC" = "Contenu du fichier C"
+  }
+}
+
+variable "create_optional_file" {
+  type    = bool
+  default = false
 }
 ```
 
@@ -491,65 +507,73 @@ variable "files" {
 terraform {
   required_providers {
     local = {
-      source  = "hashicorp/local"
-      version = "~> 2.0"
+      source = "hashicorp/local"
+      version = "2.5.2"
     }
   }
 }
 
 provider "local" {}
 
-resource "local_file" "files" {
-  for_each = { for file in var.files : file.name => file if file.create }
+# Utilisation de count pour créer plusieurs fichiers
+resource "local_file" "count_example" {
+  count = var.file_count
 
-  content  = each.value.content
-  filename = "${path.module}/${each.value.name}"
+  filename = "file_${count.index}.txt"
+  content  = "Fichier numéro ${count.index}"
+}
+
+# Utilisation de for_each pour créer des fichiers avec des noms dynamiques
+resource "local_file" "foreach_example" {
+  for_each = var.files_map
+
+  filename = "${each.key}.txt"
+  content  = each.value
+}
+
+# Utilisation d’une condition pour créer un fichier optionnel
+resource "local_file" "conditional_file" {
+  count = var.create_optional_file ? 1 : 0
+
+  filename = "optional_file.txt"
+  content  = "Ce fichier est créé uniquement si create_optional_file est vrai"
 }
 ```
 
 ```sh title="output.tf" showLineNumbers
-output "created_files" {
-  description = "Liste des fichiers créés"
-  value       = [for file in local_file.files : file.filename]
+# Outputs pour voir les fichiers créés
+output "count_files" {
+  value = [for f in local_file.count_example : f.filename]
+}
+
+output "foreach_files" {
+  value = [for f in local_file.foreach_example : f.filename]
+}
+
+output "optional_file" {
+  value = var.create_optional_file ? "optional_file.txt" : "Pas de fichier optionnel"
 }
 ```
 
+Après avoir exécuté la commande `terraform apply`,
+**expliquez** le fonctionnement des mot clés `count` et `for` et de l'opérateur `?`.
+Consultez 
+[la documentation sur les Expressions terraform](https://developer.hashicorp.com/terraform/language/expressions) 
+pour plus d'informations.
 
+:::info Résumé des commandes terraform
 
-## Structure d'un projet Terraform
+| Commande              | Description                                                              |
+|-----------------------|--------------------------------------------------------------------------|
+| `terraform validate`   | Vérifie la syntaxe et la configuration des fichiers Terraform.           |
+| `terraform init`       | Initialise un répertoire Terraform et télécharge les plugins nécessaires. |
+| `terraform plan`       | Affiche un plan des actions que Terraform va effectuer.                  |
+| `terraform apply`      | Applique le plan d'exécution en créant, modifiant ou supprimant des ressources. | 
+| `terraform show`       | Affiche l’état actuel des ressources gérées, depuis le fichier d’état ou un plan. |
+| `terraform output`     | Affiche les sorties définies dans les fichiers `outputs.tf`.            |
+| `terraform destroy`    | Détruit toutes les ressources gérées par Terraform dans le projet.      |
 
-```sh showLineNumbers
-project/
-├── environments/
-│   ├── dev/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   ├── outputs.tf
-│   │   ├── terraform.tfvars
-│   │   └── provider.tf
-│   ├── staging/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   ├── outputs.tf
-│   │   ├── terraform.tfvars
-│   │   └── provider.tf
-│   └── prod/
-│       ├── main.tf
-│       ├── variables.tf
-│       ├── outputs.tf
-│       ├── terraform.tfvars
-│       └── provider.tf
-├── scripts/
-│   ├── setup.sh
-│   └── cleanup.sh
-├── terraform.tfvars
-├── main.tf
-├── variables.tf
-├── outputs.tf
-├── provider.tf
-├── terraform.tfstate
-└── .gitignore
-```
+:::
 
 ## Provider Azure
 
