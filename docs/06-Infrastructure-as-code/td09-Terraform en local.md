@@ -19,7 +19,7 @@ en utilisant un script Terraform.
 
 :::warning Pré-requis
 
-Connaissance de base en des commandes shell et du déploiement sur Microsoft Azure.
+Connaissance de base des commandes shell et du déploiement sur Microsoft Azure.
 
 :::
 
@@ -42,15 +42,14 @@ Un script Terraform est généralement nommés `main.tf` et est décomposé en *
 
 :::info blocs
 
-Un Bloc est une structure de configuration qui regroupe des paramètres 
-et des valeurs associés à une ressource, un module ou une configuration. 
-Il est défini par un type et peut-être associé à des libellés. Un Bloc
-contient un ou plusieurs arguments et éventuellement des blocs imbriqués.
+Un Bloc est une structure de configuration qui regroupe des arguments 
+et des valeurs associées. 
+Il est défini par un **type** et contient éventuellement des blocs imbriqués.
 
-Un bloc suit généralement cette syntaxe :
+Un bloc suit *généralement* cette syntaxe :
 
 ```sh showLineNumbers
-bloc_type "nom" "nom_optionnel" {
+bloc_type "option, nom ou type" "nom_optionnel" {
   clé = valeur
   clé2 = valeur2
 
@@ -69,8 +68,8 @@ terraform {
 }
 ```
 
-Ce bloc est utilisé pour configurer Terraform. 
-Il permet de spécifier des informations liées à l’environnement Terraform global. Dans l'exemple proposé il spécifie la version
+Ce bloc est utilisé pour spécifier des informations liées à l’environnement 
+Terraform global. Dans l'exemple proposé il spécifie la version
 minimale de Terraform pour exécuter ce script.
 
 Vous pouvez consulter 
@@ -80,7 +79,7 @@ pour connaitre les arguments autorisés.
 En général un script Terraform est composé des types de blocs suivants : 
 
 - `provider` : Définit la connexion à un service (Azure, Docker, AWS…).
-- `variable` : Déclare les variables utilisées dans le script Terraform.
+- `variable` : Déclare une variable utilisée dans le script Terraform.
 - `ressource` : Définit ce qui doit être créé (VM, conteneurs, bases de données,…).
 - `output` : Affiche des informations utiles après l'exécution, comme les adresses IP des serveurs créés.
 
@@ -102,7 +101,7 @@ Comme son nom l'indique, ce provider permet de créer et de manipuler des ressou
 machine locale, ce qui est idéal pour se familiariser avec Terraform sans nécessiter 
 de connexion à un cloud comme Azure.
 
-Dans un nouveau dossier créez le fichier `main.tf` suivant : 
+Dans un nouveau dossier **créez** le fichier `main.tf` suivant : 
 
 ```sh title="main.tf" showLineNumbers
 terraform {
@@ -128,7 +127,7 @@ consultable en ligne](https://developer.hashicorp.com/terraform/language/provide
 En résumé ce sous-bloc est composé des arguments : 
 
 - `local` : indique le nom du provider.
-- `source` : spécifie la source du provider, ici hashicorp/local, 
+- `source` : spécifie la source du provider, ici `hashicorp/local`, 
 le provider du registre officiel de HashiCorp.
 - `version` : spécifie la version du provider.
 
@@ -137,10 +136,10 @@ est ajouté : `provider "local" {}`.
 Ce bloc permet de configurer le provider.
 Dans ce premier exemple aucune configuration n'est requise.
 Le code exemple pour utiliser ce provider provient directement de
-l'onglet *How to use this provider* du 
+l'onglet *USE PROVIDER* du 
 [registre terraform](https://registry.terraform.io/providers/hashicorp/local/latest)
 
-Afin de télécharger le provider, exécutez la commande suivante : 
+Afin de télécharger le provider, **exécutez** la commande suivante : 
 
 ```sh
 terraform init
@@ -167,6 +166,7 @@ Si vous souhaitez forcer une mise à jour la commande `terraform init -upgrade` 
 
 Le bloc de type resource est utilisé pour définir une ressource,
 c'est à dire un élément que Terraform va créer, modifier ou supprimer.
+
 **Modifiez** le fichier `main.tf` pour intégrer la gestion d'une ressource
 comme présenté ci-dessous.
 
@@ -199,8 +199,8 @@ Ce bloc est composé de deux arguments de configuration :
 
 - `content` : définit le contenu du fichier. 
 - `filename` : définit le chemin du fichier créé. 
-Le chemin est spécifié ici par `path.module`, qui fait référence au 
-répertoire où se trouve le fichier `.tf` actuel, suivi du nom du fichier example.txt. 
+Ce chemin est spécifié par `path.module`, qui fait référence au 
+répertoire où se trouve le fichier `.tf` actuel, suivi du nom du fichier `example.txt`. 
 
 L'utilisation de cette ressource est expliquée dans 
 [la documentation du provider local](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file).
@@ -253,7 +253,7 @@ la commande `terraform apply --auto-approve`
 
 :::
 
-Vérifiez que le fichier `example.txt` est créé après l'exécution de la commande.
+**Vérifiez** que le fichier `example.txt` est créé après l'exécution de la commande.
 
 ### État courant des ressources
 
@@ -275,9 +275,9 @@ Terraform has compared your real infrastructure against your configuration and f
 
 Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
 ```
-:::note Suppression de l'état
+:::note Exercice A : Suppression de l'état
 
-Supprimez le fichier `terraform.tfstate` et exécutez la commande `terraform apply`. Que se passe-t-il ?
+**Supprimez** le fichier `terraform.tfstate` et exécutez la commande `terraform apply`. Que se passe-t-il ?
 
 :::
 
@@ -291,7 +291,9 @@ Pour obtenir des détails sur une ressource particulière, la
 commande `terraform state show` peut vous aider.
 Vous devez simplement spécifier le nom de votre ressource.
 Par exemple le fichier a été créé via `resource "local_file" "example"`,
-son nom est `local_file.example`. Exécutez la commande ci-dessous
+son nom est `local_file.example`. 
+
+**Exécutez** la commande ci-dessous
 pour obtenir les informations sur ce fichier.
 
 ```sh
@@ -337,15 +339,15 @@ variable "nom_de_la_variable" {
 La liste des arguments du bloc `variable` et leurs valeurs est 
 [consultable en ligne](https://developer.hashicorp.com/terraform/language/values/variables#declaring-an-input-variable).
 
-:::note Secret
+:::note Exercice B : Secret
 
-Consultez la documentation de Terraform pour déterminer 
-quel argument faut-il ajouter au bloc variable pour que sa valeur ne soit
+**Consultez** la documentation de Terraform pour déterminer 
+quel argument faut-il ajouter au bloc variable de type pour que sa valeur ne soit
 jamais affichée dans le terminal ?
 
 :::
 
-Dans le dossier de votre projet Terraform, créez le fichier `variables.tf` 
+Dans le dossier de votre projet Terraform, **créez** le fichier `variables.tf` 
 avec le contenu suivant : 
 
 ```sh title="variables.tf" showLineNumbers
@@ -386,7 +388,15 @@ resource "local_file" "example" {
 }
 ```
 
-Exécutez le script pour créer le fichier et vérifiez le résultat.
+**Exécutez** le script pour créer le fichier et vérifiez le résultat.
+
+:::tip valider un script
+
+La commande `terraform validate` permet de vérifier la syntaxe et la cohérence des 
+fichiers Terraform sans appliquer de modifications à l'infrastructure. Essayez cette
+commande avant d'appliquer une mise à jour.
+
+:::
 
 ### Assigner une valeur à une variable 
 
@@ -406,41 +416,52 @@ file_content="contenu provenant du fichier tfvars"
 file_name=nouveau_fichier.txt
 ```
 
-Exécutez le script pour créer le fichier et vérifiez le nom et le
+**Exécutez** le script pour créer le fichier et vérifiez le nom et le
 contenu du fichier.
 
 #### Paramètres de commande
 
 Vous pouvez également passer des variables lors de l’exécution via
 le paramètre `-var`.
-Exécutez le script avec la commande ci-dessous pour créer le fichier 
-et vérifiez le nom et le contenu du fichier. 
+
+:::note Exercice C : Passer un paramètre
+
+**Exécutez** le script avec la commande ci-dessous pour créer le fichier 
+et **vérifiez** le nom et le contenu du fichier. 
 
 ```sh
 terraform apply -var="file_name=file-param.txt"
 ```
 
+:::
+
 ### Variables d’environnement
 
-Si vous effacer la valeur de la variable du fichier `terraform.tfvars`,
-vous pouvez définir une variable d'environnement avec le préfixe `TF_VAR`.
+les variables d'environnements précédée du préfixe `TF_VAR` sont interprétées
+par Terraform comme des variables de votre projet.
 
-```sh
-export TF_VAR_file_content="contenu de la variable d’environnement"
-```
+:::note Exercice D : Passer un paramètre
+
+**Effacez** la valeur de la variable `file_content` du fichier `terraform.tfvars`.
+**Exportez** ensuite la variable d'environnement `TF_VAR_file_content` avec la valeur
+"contenu de la variable d’environnement".
+**Exécutez** le script Terraform pour créer le fichier 
+et **vérifiez** le nom et le contenu du fichier. 
+
+:::
 
 ## Bloc de type output : affichage des résultats
 
-En Terraform, le bloc output est utilisé pour afficher des valeurs 
-après l'exécution de terraform apply. Il permet d'extraire des informations 
+En Terraform, le bloc de type output est utilisé pour afficher des valeurs 
+après l'exécution de la commande `terraform apply`. Il permet d'extraire des informations 
 importantes des ressources créées et de les rendre accessibles à l'utilisateur 
 ou à d'autres configurations.
 
 Ce bloc peut être défini dans le fichier `main.tf` mais 
-pour structurer son projet Terraform il est d'usage de les créer 
+pour structurer un projet Terraform il est d'usage de les créer 
 dans un fichier séparé : `outputs.tf`.
 
-Créez dans votre dossier de travail le fichier `outputs.tf` présenté ci-dessous.
+**Créez** dans votre dossier de travail le fichier `outputs.tf` présenté ci-dessous.
 
 ```sh title="outputs.tf" showLineNumbers
 output "file_path" {
@@ -458,6 +479,8 @@ Outputs:
 file_path = "./my_file.txt"
 ```
 
+:::tip Affichage des outputs
+
 Vous pouvez afficher ce résultat par la suite via la commande suivante : 
 
 ```sh
@@ -466,12 +489,6 @@ terraform output file_path
 
 Cette commande s’avère utile pour récupérer les adresses IP des serveurs créés.
 
-:::tip plusieurs output
-
-Si vous avez défini plusieurs blocs de type `output`, vous pouvez r le
-résultat d'un seul de ces blocs en précisant son nom à la commande Terraform.
-Dans votre exemple vous pouvez écrire `terraform output file_path`.
-
 :::
 
 ## Embranchements
@@ -479,7 +496,7 @@ Dans votre exemple vous pouvez écrire `terraform output file_path`.
 Terraform permet d'utiliser des boucles et des conditions pour rendre 
 les configurations plus dynamiques et flexibles. 
 
-Créez le projet Terraform composé des fichiers
+**Créez** le projet Terraform composé des fichiers
 `variables.tf`, `main.tf` et `outputs.tf` ci-dessous.
 
 ```sh title="variables.tf" showLineNumbers
@@ -555,31 +572,23 @@ output "optional_file" {
 }
 ```
 
-Après avoir exécuté la commande `terraform apply`,
+:::note Interpréter un script
+
+Après avoir **exécuté** la commande `terraform apply`,
 **expliquez** le fonctionnement des mot clés `count` et `for` et de l'opérateur `?`.
 Consultez 
 [la documentation sur les Expressions terraform](https://developer.hashicorp.com/terraform/language/expressions) 
 pour plus d'informations.
 
-:::info Résumé des commandes terraform
-
-| Commande              | Description                                                              |
-|-----------------------|--------------------------------------------------------------------------|
-| `terraform validate`   | Vérifie la syntaxe et la configuration des fichiers Terraform.           |
-| `terraform init`       | Initialise un répertoire Terraform et télécharge les plugins nécessaires. |
-| `terraform plan`       | Affiche un plan des actions que Terraform va effectuer.                  |
-| `terraform apply`      | Applique le plan d'exécution en créant, modifiant ou supprimant des ressources. | 
-| `terraform show`       | Affiche l’état actuel des ressources gérées, depuis le fichier d’état ou un plan. |
-| `terraform output`     | Affiche les sorties définies dans les fichiers `outputs.tf`.            |
-| `terraform destroy`    | Détruit toutes les ressources gérées par Terraform dans le projet.      |
-
 :::
 
 ## Provider Azure
 
+![work in progress](/img/work-in-progress.jpeg)
+
 ### Authentification auprès du fournisseur
 
-Il existe plusieurs façons de se connecter. Dans un but d'automatisation, 
+<!-- Il existe plusieurs façons de se connecter. Dans un but d'automatisation, 
 vous allez utiliser un Service Principal,
 
 Azure CLI (Command-Line Interface) est un outil en ligne de commande permettant 
@@ -609,11 +618,11 @@ export ARM_CLIENT_ID="your-client-id"
 export ARM_CLIENT_SECRET="your-client-secret"
 export ARM_SUBSCRIPTION_ID="your-subscription-id"
 export ARM_TENANT_ID="your-tenant-id"
-```
+``` -->
 
 ### Script
 
-```sh showLineNumbers
+<!-- ```sh showLineNumbers
 provider "azurerm" {
   features {}
 }
@@ -655,11 +664,11 @@ resource "azurerm_app_service" "webapp" {
     "DOCKER_REGISTRY_SERVER_PASSWORD" = azurerm_container_registry.acr.admin_password
   }
 }
-```
+``` -->
 
 ## Intégration dans un Pipeline 
 
-```sh showLineNumbers
+<!-- ```sh showLineNumbers
 my-project/
 │
 ├── Dockerfile                  # Définition de l'image Docker
@@ -681,4 +690,4 @@ my-project/
 ```
 
 Les variables d'environnements crées localement doivent
-être crée comme des secrets de votre projet sur le serveur git.esi-bru.be.
+être crée comme des secrets de votre projet sur le serveur git.esi-bru.be. -->
