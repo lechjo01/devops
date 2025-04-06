@@ -19,7 +19,7 @@ en utilisant un script Terraform.
 
 :::warning Pré-requis
 
-Connaissance de base des commandes shell et du déploiement sur Microsoft Azure.
+Connaissance de base des commandes shell, de Docker et du déploiement sur Microsoft Azure.
 
 :::
 
@@ -584,6 +584,12 @@ pour plus d'informations.
 
 ## Provider Azure
 
+Dans cette section, vous allez créer une infrastructure 
+sur Microsoft Azure pour déployer l’application `demo-no-db` 
+à partir de son image Docker. 
+Commencez par préparer le code de l’application ainsi que 
+le **Dockerfile** correspondant.
+
 ###  Client Azure
 
 **Azure CLI**, pour Azure Command-Line Interface, est un outil en ligne de commande permettant 
@@ -652,7 +658,8 @@ Suivez le tutoriel de
 
 Comme mentionné dans le tutoriel, n'oubliez pas d'exporter les variables
 d'environnements permettant la connexion à Microsoft Azure 
-via un Service principal.
+via un Service principal. Le nom de ces variables est défini
+par le provider Azure de Terraform.
 
 ```sh showLineNumbers
 ARM_CLIENT_ID="your-client-id"
@@ -663,74 +670,315 @@ ARM_TENANT_ID="your-tenant-id"
 
 :::
 
-### Script
+### Service principal devient propriétaire des ressources
 
-<!-- ```sh showLineNumbers
+La première étape consiste à accorder au Service Principal 
+les autorisations nécessaires pour créer les ressources requises.
+
+```sh
+az role assignment create --assignee ${ARM_CLIENT_ID} --role "Owner" --scope /subscriptions/${ARM_SUBSCRIPTION_ID}
+```
+
+Le service principal a le rôle **Owner** sur l'ensemble de l'**abonnement**.
+Il peut créer toutes les ressources nécessaires.
+
+### Création du projet Terraform
+
+Créez dans un nouveau dossier
+les fichiers Terraform suivants : 
+
+```sh
+├── main.tf
+├── outputs.tf
+├── providers.tf
+└── variables.tf
+```
+
+Commencez par compléter le fichier `providers.tf` 
+contenant la configuration nécessaire
+pour que Terraform se connecte à Microsoft Azure.
+
+```sh title="providers.tf" showLineNumbers
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "4.26.0"
+    }
+  }
+}
+
 provider "azurerm" {
   features {}
 }
+```
 
+Lors du déploiement d’une première application sur Azure, 
+vous avez utilisé plusieurs types de ressources. 
+Terraform permet d’automatiser la création de ces ressources.
+La documentation officielle de ces ressources est disponible sur le 
+[le registre terraform]((https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group)).
+Voici la configuration minimale requise pour chacune d’entre elles :
+
+- **azurerm_resource_group** : Crée un groupe de ressources Azure pour 
+regrouper et gérer les ressources liées entre elles.
+```sh showLineNumbers
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-webapp"
-  location = "East US"
+  name     = var.resource_group_name
+  location = var.location
+}
+```
+- **azurerm_user_assigned_identity** : Crée une identité managée 
+pouvant être assignée à une ou plusieurs ressources pour l’authentification.
+```sh
+resource "azurerm_user_assigned_identity" "identity" {
+  name                = var.identity_name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+}
+```
+- **azurerm_container_registry** : Crée un registre de conteneurs Azure (ACR) 
+pour stocker et gérer des images Docker.
+```sh
+resource "azurerm_container_registry" "acr" {
+  name                = var.acr_name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Basic"
+  admin_enabled       = true
+}
+```
+- **azurerm_role_assignment** : Attribue un rôle spécifique (comme AcrPull) 
+à une identité sur une ressource pour lui accorder des permissions précises.
+```sh
+resource "azurerm_role_assignment" "acr_pull" {
+  scope                = azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_user_assigned_identity.identity.principal_id
+}
+```
+- **azurerm_service_plan** : Définit un plan App Service qui spécifie 
+les ressources (CPU/RAM/prix) utilisées par les applications web.
+```sh
+resource "azurerm_service_plan" "app_service_plan" {
+  name                = var.service_plan_name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  os_type             = "Linux"
+  sku_name            = "B1"
+}
+```
+- **azurerm_linux_web_app** : Crée une application web Azure basée 
+sur Linux, pouvant héberger une image Docker personnalisée.
+```sh
+resource "azurerm_linux_web_app" "app" {
+  name                = var.web_app_name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  service_plan_id     = azurerm_service_plan.app_service_plan.id
+}  
+```
+
+Vous allez utiliser ces configurations dans la suite de l'exercice.
+
+#### Définition des variables
+
+Ajoutez au fichier `variables.tf` les différentes variables
+nécessaires au déploiement. Les valeurs par défaut et la description
+doit vous permettre d'en comprendre le sens.
+
+```sh title="variables.tf" showLineNumbers
+variable "location" {
+  description = "Azure region"
+  type        = string
+  default     = "West Europe"
+}
+
+variable "resource_group_name" {
+  description = "Name of the resource group"
+  type        = string
+  default     = "rg-container-app"
+}
+
+variable "acr_name" {
+  description = "Name of the Azure Container Registry"
+  type        = string
+  default     = "myacrregistry1234"
+}
+
+variable "identity_name" {
+  description = "Name of the user-assigned managed identity"
+  type        = string
+  default     = "container-app-identity"
+}
+
+variable "service_plan_name" {
+  description = "Name of the App Service plan"
+  type        = string
+  default     = "appserviceplan"
+}
+
+variable "web_app_name" {
+  description = "Name of the Web App"
+  type        = string
+  default     = "my-container-app"
+}
+// highlight-start
+variable "docker_image_name" {
+  description = "Docker image name and tag"
+  type        = string
+  default     = "myapp:latest"
+}
+
+variable "web_app_port" {
+  description = "Port on which the web app listens"
+  type        = string
+  default     = "8080"
+}
+// highlight-end
+```
+
+Vous pourrez adapter lors de l'exécution du script
+les valeurs associées au nom de l'image et au numéro de port utiliser par
+l'application.
+
+#### Définition des ressources
+
+Complétez le fichier `main.tf` avec les ressources à créer
+dans le cloud. Prenez attention à la ressource définissant
+l'application web, elle contient la configuration
+spécifique de votre application.
+
+```sh title="main.tf" showLineNumbers
+resource "azurerm_resource_group" "rg" {
+  name     = var.resource_group_name
+  location = var.location
+}
+
+resource "azurerm_user_assigned_identity" "identity" {
+  name                = var.identity_name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
 }
 
 resource "azurerm_container_registry" "acr" {
-  name                = "myContainerRegistry1234"
+  name                = var.acr_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   sku                 = "Basic"
   admin_enabled       = true
 }
 
+resource "azurerm_role_assignment" "acr_pull" {
+  scope                = azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_user_assigned_identity.identity.principal_id
+}
+
 resource "azurerm_service_plan" "app_service_plan" {
-  name                = "appserviceplan"
-  location            = azurerm_resource_group.rg.location
+  name                = var.service_plan_name
+  location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   os_type             = "Linux"
   sku_name            = "B1"
 }
 
-resource "azurerm_app_service" "webapp" {
-  name                = "my-web-app"
-  location            = azurerm_resource_group.rg.location
+resource "azurerm_linux_web_app" "app" {
+  name                = var.web_app_name
+  location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
-  app_service_plan_id = azurerm_service_plan.app_service_plan.id
-
+  service_plan_id     = azurerm_service_plan.app_service_plan.id
+// highlight-start
   site_config {
-    linux_fx_version = "DOCKER|${azurerm_container_registry.acr.login_server}/myapp:latest"
+    container_registry_use_managed_identity       = true
+    container_registry_managed_identity_client_id = azurerm_user_assigned_identity.identity.client_id
+
+    application_stack {
+      docker_image_name   = var.docker_image_name
+      docker_registry_url = "https://${azurerm_container_registry.acr.login_server}"
+    }
+  }
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.identity.id]
   }
 
   app_settings = {
-    "DOCKER_REGISTRY_SERVER_URL"      = "https://${azurerm_container_registry.acr.login_server}"
-    "DOCKER_REGISTRY_SERVER_USERNAME" = azurerm_container_registry.acr.admin_username
-    "DOCKER_REGISTRY_SERVER_PASSWORD" = azurerm_container_registry.acr.admin_password
+    WEBSITES_PORT = var.web_app_port
   }
+  // highlight-end
 }
-``` -->
+```
+
+Les détails des arguments utilisés sont consultables via
+le [registre terraform](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_web_app).
+
+#### Définition des outputs
+
+Afin d'obtenir les informations de connexion
+à votre application, complétez le fichier `outputs.tf`
+comme ci-dessous.
+
+```sh title="outputs.tf" showLineNumbers
+output "container_registry_login_server" {
+  description = "Adresse du registre ACR"
+  value       = azurerm_container_registry.acr.login_server
+}
+
+output "web_app_url" {
+  description = "URL complète de l'application web"
+  value       = "https://${azurerm_linux_web_app.app.default_hostname}/config"
+}
+```
+
+#### Création de l'infrastructure
+
+Les scripts Terraform en placent, vous pouvez créer
+l'infrastructure via les commandes : 
+
+- `terraform init`
+- `terraform validate`
+- `terraform apply`
+
+Il vous reste une dernière étape, le déploiement de l'image
+de `demo-no-db` sur le registre de conteneurs.
+
+#### Déploiement de l'image sur le registre de conteneurs
+
+Sur votre machine, placez-vous dans le dossier où se trouve le 
+**Dockerfile** de l'application `demo-no-db`.
+Les commandes ci-dessous vont déployer votre image sur le registre de conteneurs.
+
+```sh
+az acr login --name myacrregistry1234
+docker build -t myacrregistry1234.azurecr.io/myapp:latest .
+docker push myacrregistry1234.azurecr.io/myapp:latest
+```
+
+:::tip variables acr_name et docker_image_name
+
+Si vous avez adapté le nom de votre registre de conteneurs
+ou le nom de votre image, n'oubliez pas
+de modifier la valeur *myacrregistry1234* ou la valeur *myapp*.
+
+:::
+
+Si tout est ordre vous devriez pouvoir consulter
+l'application via l'url fournie par les outputs de Terraform.
+En cas d'erreur consultez les logs de votre application.
 
 ## Intégration dans un Pipeline 
 
-<!-- ```sh showLineNumbers
-my-project/
-│
-├── Dockerfile                  # Définition de l'image Docker
-├── docker-compose.yml          # Configuration des services Docker
-│
-├── terraform/                  # Répertoire pour les fichiers Terraform
-│   ├── main.tf                 # Fichier principal de configuration Terraform
-│   ├── variables.tf            # Définition des variables Terraform
-│   ├── outputs.tf              # Définitions des outputs de Terraform
-│   └── provider.tf             # Configuration du provider (par exemple, AWS, Google Cloud)
-│
-├── scripts/                    # Scripts utiles pour l'automatisation ou la configuration
-│   └── setup.sh                # Par exemple, un script pour initialiser l'environnement
-│
-├── .gitignore                  # Fichier pour ignorer certains fichiers (ex. fichiers Terraform, Docker)
-├── README.md                   # Documentation du projet
-├── .dockerignore               # Fichier pour ignorer certains fichiers dans Docker
-└── src/                        # Code de l'application
-```
+Pour intégrer la création de l’infrastructure dans le pipeline 
+`gitlab-ci.yml`, il vous suffit de :
 
-Les variables d'environnements crées localement doivent
-être crée comme des secrets de votre projet sur le serveur git.esi-bru.be. -->
+- adapter le fichier `.gitignore` 
+[pour y inclure les fichiers liés à Terraform](https://github.com/github/gitignore/blob/main/Terraform.gitignore),
+- ajouter le dossier contenant votre projet 
+Terraform dans le dépôt,
+- créer un nouveau job dans le pipeline qui exécute 
+les commandes Terraform.
+
+Cette étape sera réalisée lors des scénarios de synthèse qui récapitulent 
+l’ensemble des étapes vues dans les TDs.
