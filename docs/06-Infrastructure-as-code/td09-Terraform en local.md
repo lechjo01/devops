@@ -584,41 +584,84 @@ pour plus d'informations.
 
 ## Provider Azure
 
-![work in progress](/img/work-in-progress.jpeg)
+###  Client Azure
 
-### Authentification auprès du fournisseur
-
-<!-- Il existe plusieurs façons de se connecter. Dans un but d'automatisation, 
-vous allez utiliser un Service Principal,
-
-Azure CLI (Command-Line Interface) est un outil en ligne de commande permettant 
+**Azure CLI**, pour Azure Command-Line Interface, est un outil en ligne de commande permettant 
 de gérer et d'automatiser les ressources et services dans Microsoft Azure. 
 Il permet d'interagir avec Azure en utilisant des commandes simples plutôt que 
 de passer par le portail web d'Azure.
 
-Commencer par installer Azure CLI : https://learn.microsoft.com/en-us/cli/azure/install-azure-cli
+Installez Azure CLI en suivant 
+[la documentation sur Microsoft Learn](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli).
+**Vérifiez** l'installation via la commande `az version`.
 
-Voici comment créer un Service Principal et obtenir les informations nécessaires :
+### Authentification auprès du fournisseur
+
+Plusieurs méthodes permettent de s’authentifier auprès d’Azure :
+
+- **Azure CLI** (az login) : Authentification interactive via un compte utilisateur. 
+Cette commande ouvre un navigateur pour valider la connexion.
+- **Service Principal** : Représente une identité d’application dans Azure. 
+Ce service utilise un client ID et un mot de passe (ou certificat). 
+C’est la méthode recommandée pour les scénarios d’automatisation, 
+comme avec Terraform ou GitLab CI.
+- **Managed Identity** : Identité gérée automatiquement par Azure, 
+associée à une ressource (ex. : VM, App Service). 
+Elle est idéale lorsque l’exécution de Terraform se fait depuis Azure lui-même.
+
+Dans le cadre de l’automatisation, l’approche recommandée est l’usage 
+d’un Service Principal pour se connecter à Azure.
+
+### Connexion via Azure CLI
+
+Avant de créer un Service Principal, vous devez d’abord vous connecter 
+à Azure en local à l’aide de la commande :
 
 ```sh
-az ad sp create-for-rbac --name "my-terraform-sp" --role="Contributor" --scopes="/subscriptions/{subscription-id}"
+az login
 ```
 
-Cela retournera un JSON contenant les informations suivantes :
+Cette commande ouvre automatiquement une fenêtre de navigateur 
+pour vous permettre de vous authentifier avec vos identifiants Azure.
 
-- `appId` : ID de l'application (Client ID).
-- `password` : mot de passe (Client Secret).
-- `tenant` : ID du locataire (Tenant ID).
+Une fois connecté, votre terminal affichera les informations 
+liées à votre compte et à votre abonnement, comme ci-dessous :
 
-Ensuite, vous devez définir les variables d'environnement pour que 
-Terraform puisse s'authentifier en utilisant ces informations :
+```sh
+No     Subscription name    Subscription ID                       Tenant
+-----  -------------------  ------------------------------------  ------------------------------------
+[1] *  Azure for Students   ********-****-****-****-************  Haute Ecole Bruxelles Brabant (HE2B)
+```
+
+Notez bien votre **Subscription ID**, vous en aurez besoin dans 
+les étapes suivantes pour attribuer les droits adéquats à votre Service Principal.
+
+Si vous souhaitez afficher les informations associées à votre
+compte, utilisez la commande :
+
+```sh
+az account show
+```
+
+### Création d'un Service principal
+
+Suivez le tutoriel de 
+[création du Service Principal disponible sur Microsoft Learn](https://learn.microsoft.com/en-us/azure/developer/terraform/authenticate-to-azure-with-service-principle?tabs=bash#create-a-service-principal).
+
+:::warning export des variables ARM
+
+Comme mentionné dans le tutoriel, n'oubliez pas d'exporter les variables
+d'environnements permettant la connexion à Microsoft Azure 
+via un Service principal.
 
 ```sh showLineNumbers
-export ARM_CLIENT_ID="your-client-id"
-export ARM_CLIENT_SECRET="your-client-secret"
-export ARM_SUBSCRIPTION_ID="your-subscription-id"
-export ARM_TENANT_ID="your-tenant-id"
-``` -->
+ARM_CLIENT_ID="your-client-id"
+ARM_CLIENT_SECRET="your-client-secret"
+ARM_SUBSCRIPTION_ID="your-subscription-id"
+ARM_TENANT_ID="your-tenant-id"
+```
+
+:::
 
 ### Script
 
