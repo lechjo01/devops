@@ -717,7 +717,7 @@ Lors du déploiement d’une première application sur Azure,
 vous avez utilisé plusieurs types de ressources. 
 Terraform permet d’automatiser la création de ces ressources.
 La documentation officielle de ces ressources est disponible sur le 
-[le registre terraform]((https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group)).
+[le registre terraform](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group).
 Voici la configuration minimale requise pour chacune d’entre elles :
 
 - **azurerm_resource_group** : Crée un groupe de ressources Azure pour 
