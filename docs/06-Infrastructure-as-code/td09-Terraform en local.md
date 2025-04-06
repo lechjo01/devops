@@ -575,9 +575,9 @@ output "optional_file" {
 :::note Interpréter un script
 
 Après avoir **exécuté** la commande `terraform apply`,
-**expliquez** le fonctionnement des mot clés `count` et `for` et de l'opérateur `?`.
+**expliquez** le fonctionnement des mots clés `count` et `for` et de l'opérateur `?`.
 Consultez 
-[la documentation sur les Expressions terraform](https://developer.hashicorp.com/terraform/language/expressions) 
+[la documentation sur les expressions terraform](https://developer.hashicorp.com/terraform/language/expressions) 
 pour plus d'informations.
 
 :::
