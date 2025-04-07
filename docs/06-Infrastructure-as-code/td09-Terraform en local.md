@@ -342,7 +342,7 @@ La liste des arguments du bloc `variable` et leurs valeurs est
 :::note Exercice B : Secret
 
 **Consultez** la documentation de Terraform pour déterminer 
-quel argument faut-il ajouter au bloc variable de type pour que sa valeur ne soit
+quel argument faut-il ajouter au bloc de type variable  pour que sa valeur ne soit
 jamais affichée dans le terminal ?
 
 :::
@@ -437,7 +437,7 @@ terraform apply -var="file_name=file-param.txt"
 
 ### Variables d’environnement
 
-les variables d'environnements précédée du préfixe `TF_VAR` sont interprétées
+Les variables d'environnements précédées du préfixe `TF_VAR` sont interprétées
 par Terraform comme des variables de votre projet.
 
 :::note Exercice D : Passer un paramètre
@@ -454,8 +454,8 @@ et **vérifiez** le nom et le contenu du fichier.
 
 En Terraform, le bloc de type output est utilisé pour afficher des valeurs 
 après l'exécution de la commande `terraform apply`. Il permet d'extraire des informations 
-importantes des ressources créées et de les rendre accessibles à l'utilisateur 
-ou à d'autres configurations.
+importantes sur les ressources créées et de les rendre accessibles à l'utilisateur 
+ou à d'autres scripts.
 
 Ce bloc peut être défini dans le fichier `main.tf` mais 
 pour structurer un projet Terraform il est d'usage de les créer 
