@@ -413,7 +413,7 @@ ci-dessous.
 
 ```sh title="terraform.tfvars" showLineNumbers
 file_content="contenu provenant du fichier tfvars"
-file_name=nouveau_fichier.txt
+file_name="nouveau_fichier.txt"
 ```
 
 **Exécutez** le script pour créer le fichier et vérifiez le nom et le
