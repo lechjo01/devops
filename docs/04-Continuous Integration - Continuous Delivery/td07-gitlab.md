@@ -970,4 +970,80 @@ docker_build:
     DOCKER_TLS_CERTDIR: "/certs"  # Nécessaire pour Docker-in-Docker
 ```
 
-Un exercice dédié à son utilisation sera proposé dans le TD sur le cloud.
+Pour permettre à votre conteneur exécutant le job `docker_build` d'utiliser Docker (votre executor),
+[la documentation mentionnne](https://docs.gitlab.com/ci/docker/using_docker_build/#use-the-docker-executor-with-docker-socket-binding)
+qu'il faut enregistrer votre runner avec le volume `/var/run/docker.sock:/var/run/docker.sock`.
+
+La solution la plus simple, sans modifier manuellement le fichier de configuration 
+situé dans le dossier `gitlab-runner/config`, consiste à :
+
+- Retirer le GitLab Runner de la liste des runners de votre projet via l’interface web de [git.esi-bru.be](https://git.esi-bru.be).
+- Arrêter le conteneur GitLab Runner avec la commande : `docker stop gitlab-runner`
+- Créer un nouveau conteneur GitLab Runner : 
+- Supprimer le conteneur GitLab Runner avec : `docker rm gitlab-runner`
+<Tabs groupId="operating-systems">
+  <TabItem value="Linux/macOS" label="Linux/MacOS">
+  ```sh
+  docker run -d \
+    --name gitlab-runner \
+    --restart always \
+    -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    gitlab/gitlab-runner:latest
+  ```
+ </TabItem>
+  <TabItem value="win" label="Windows">
+  N'oubliez pas de remplacer dans la commande ci-dessous le *chemin_absolu_vers_la_configuration*
+
+  ```sh
+  docker run -d ^
+    --name gitlab-runner ^
+    --restart always ^
+    -v chemin_absolu_vers_la_configuration\gitlab-runner\config:/etc/gitlab-runner ^
+    -v /var/run/docker.sock:/var/run/docker.sock ^
+    gitlab/gitlab-runner:latest
+  ```
+  </TabItem>
+</Tabs>
+
+- Enregistrer le runner en précisant le volume vers le socket Docker, à l’aide de la commande
+
+<Tabs groupId="operating-systems">
+  <TabItem value="Linux/macOS" label="Linux/MacOS">
+  ```sh
+  docker run --rm \
+    -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+    gitlab/gitlab-runner register \
+      --non-interactive \
+      --url "https://git.esi-bru.be" \
+      // highlight-next-line
+      --token "$RUNNER_TOKEN" \
+      --executor "docker" \
+      --docker-image alpine:latest \
+      --description "docker-runner"
+      // highlight-next-line
+      --docker-volumes /var/run/docker.sock:/var/run/docker.sock
+  ```
+ </TabItem>
+  <TabItem value="win" label="Windows">
+  N'oubliez pas chde remplacer dans la commande ci-dessous le *chemin_absolu_vers_la_configuration*
+
+  ```sh
+  docker run --rm ^
+    -v chemin_absolu_vers_la_configuration\gitlab-runner\config:/etc/gitlab-runner ^
+    gitlab/gitlab-runner register ^
+      --non-interactive ^
+      --url "https://git.esi-bru.be" ^
+      // highlight-next-line
+      --token "$RUNNER_TOKEN" 
+      --executor "docker" ^
+      --docker-image alpine:latest ^
+      --description "docker-runner"
+      // highlight-next-line
+      --docker-volumes /var/run/docker.sock:/var/run/docker.sock
+  ```
+  </TabItem>
+</Tabs>
+
+L'utilisation de Docker in Docker sera implémentée lors des scénarios de synthèse qui récapitulent 
+l’ensemble des étapes vues dans les TDs.
