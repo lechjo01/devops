@@ -1,4 +1,4 @@
-# TD 03 - Configurer une DB
+# TD 02 - Configurer une DB
 
 Ce TD vous guidera à travers les étapes nécessaires pour développer, 
 configurer, et déployer une application Spring Boot connectée à une 
