@@ -1,10 +1,8 @@
 # TD 05 - Gérer la charge avec Nginx
 
-Une fois ces bases maîtrisées, vous aborderez *Docker Compose*, 
-un outil permettant de gérer plusieurs conteneurs. 
-Vous créerez des configurations *docker-compose.yml* pour orchestrer 
-une application Spring avec une base de données MySQL puis avec un 
-*load balancer Nginx*.
+Ce TD a pour objectif de vous familiariser avec NGINX, un composant essentiel de l’écosystème DevOps.
+À travers des manipulations progressives, vous découvrirez son fonctionnement de base, 
+son rôle de reverse proxy, ainsi que son intégration avec une application personnelle. 
 
 ### Objectifs 
 
